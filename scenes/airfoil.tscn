@@ -1,0 +1,12 @@
+[gd_scene load_steps=3 format=3 uid="uid://cdb3ygig8k7vo"]
+
+[ext_resource type="Script" uid="uid://bj1mnbprt8ga7" path="res://scripts/airfoil.gd" id="1_bvbxv"]
+
+[sub_resource type="Curve" id="Curve_yc2hw"]
+_limits = [-1.0, 1.0, -90.0, 90.0]
+_data = [Vector2(-90, 0), 0.0, 0.0, 0, 0, Vector2(-28.7234, -0.865168), 0.0, 0.0, 0, 0, Vector2(0, 0), 0.0404869, 0.0404869, 0, 0, Vector2(30, 1), 0.0, 0.0, 0, 0, Vector2(90, 0), 0.0, 0.0, 0, 0]
+point_count = 5
+
+[node name="Airfoil" type="Node3D"]
+script = ExtResource("1_bvbxv")
+lift_curve = SubResource("Curve_yc2hw")

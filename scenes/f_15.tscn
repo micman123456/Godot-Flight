@@ -1,0 +1,93 @@
+[gd_scene load_steps=8 format=3 uid="uid://c4cymukcksy1d"]
+
+[ext_resource type="PackedScene" uid="uid://d0qx5smmwcawl" path="res://entities/aircraft/f15.glb" id="1_v671m"]
+[ext_resource type="Shader" uid="uid://htijpua74vxv" path="res://shaders/exhaust.gdshader" id="2_2exjx"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_v671m"]
+vertex_color_use_as_albedo = true
+albedo_color = Color(0.164706, 0.180392, 0.2, 1)
+roughness = 0.7
+ao_enabled = true
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_2exjx"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_3t6no"]
+render_priority = 0
+shader = ExtResource("2_2exjx")
+shader_parameter/noise_texture = SubResource("NoiseTexture2D_2exjx")
+shader_parameter/speed = 0.0
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_le2s0"]
+top_radius = 0.2
+bottom_radius = 0.7
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_le2s0"]
+render_priority = 0
+shader = ExtResource("2_2exjx")
+shader_parameter/noise_texture = SubResource("NoiseTexture2D_2exjx")
+shader_parameter/speed = 0.0
+
+[node name="f15" instance=ExtResource("1_v671m")]
+
+[node name="Fuselage" parent="." index="0"]
+surface_material_override/0 = SubResource("StandardMaterial3D_v671m")
+
+[node name="Nose" parent="." index="1"]
+surface_material_override/0 = SubResource("StandardMaterial3D_v671m")
+
+[node name="Cockpit" parent="." index="2"]
+surface_material_override/0 = SubResource("StandardMaterial3D_v671m")
+
+[node name="UpperFuselage" parent="." index="3"]
+surface_material_override/0 = SubResource("StandardMaterial3D_v671m")
+
+[node name="Engines" parent="." index="4"]
+surface_material_override/0 = SubResource("StandardMaterial3D_v671m")
+
+[node name="Wings" parent="." index="5"]
+surface_material_override/0 = SubResource("StandardMaterial3D_v671m")
+
+[node name="LeftAileron" parent="." index="6"]
+transform = Transform3D(0.906308, 0.422618, -1.84732e-08, 0, -4.37114e-08, -1, -0.422618, 0.906308, -3.9616e-08, -4.76966, 0.158952, 2.09523)
+surface_material_override/0 = SubResource("StandardMaterial3D_v671m")
+
+[node name="RightAileron" parent="." index="7"]
+transform = Transform3D(0.906308, -0.422618, 1.84732e-08, 0, -4.37114e-08, -1, 0.422618, 0.906308, -3.9616e-08, 4.76966, 0.158952, 2.09523)
+surface_material_override/0 = SubResource("StandardMaterial3D_v671m")
+
+[node name="LeftFlap" parent="." index="8"]
+surface_material_override/0 = SubResource("StandardMaterial3D_v671m")
+
+[node name="RightFlap" parent="." index="9"]
+surface_material_override/0 = SubResource("StandardMaterial3D_v671m")
+
+[node name="LeftElevator" parent="." index="10"]
+surface_material_override/0 = SubResource("StandardMaterial3D_v671m")
+
+[node name="RightElevator" parent="." index="11"]
+surface_material_override/0 = SubResource("StandardMaterial3D_v671m")
+
+[node name="Rudders" parent="." index="12"]
+surface_material_override/0 = SubResource("StandardMaterial3D_v671m")
+
+[node name="LeftRudder" parent="." index="13"]
+surface_material_override/0 = SubResource("StandardMaterial3D_v671m")
+
+[node name="RightRudder" parent="." index="14"]
+surface_material_override/0 = SubResource("StandardMaterial3D_v671m")
+
+[node name="Airbrake" parent="." index="16"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0.82473, -3.48151)
+surface_material_override/0 = SubResource("StandardMaterial3D_v671m")
+
+[node name="ExhaustHeatLeft" type="MeshInstance3D" parent="." index="21"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, -0.678, -0.037, 5.5)
+material_override = SubResource("ShaderMaterial_3t6no")
+mesh = SubResource("CylinderMesh_le2s0")
+
+[node name="ExhaustHeatRight" type="MeshInstance3D" parent="." index="22"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0.678, -0.037, 5.5)
+material_override = SubResource("ShaderMaterial_le2s0")
+mesh = SubResource("CylinderMesh_le2s0")
+
+[node name="EngineAudio" type="AudioStreamPlayer3D" parent="." index="23"]

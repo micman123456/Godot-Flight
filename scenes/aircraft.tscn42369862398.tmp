@@ -1,0 +1,75 @@
+[gd_scene load_steps=9 format=3 uid="uid://boxr4cw24qv4b"]
+
+[ext_resource type="PackedScene" uid="uid://c4cymukcksy1d" path="res://scenes/f_15.tscn" id="1_0lgdb"]
+[ext_resource type="Script" uid="uid://cs3akmwrohcyr" path="res://scripts/aircraft.gd" id="1_bo153"]
+[ext_resource type="PackedScene" uid="uid://ce354qef3vhlv" path="res://scenes/hud.tscn" id="3_jwdad"]
+[ext_resource type="Script" uid="uid://dd101hqqv5sx3" path="res://scripts/aircraft_model.gd" id="3_mqyat"]
+
+[sub_resource type="Curve" id="Curve_jwdad"]
+_limits = [-1.0, 1.0, -90.0, 90.0]
+_data = [Vector2(-90, 0), 0.0, 0.0, 0, 0, Vector2(-28.7234, -0.865168), 0.0, 0.0, 0, 0, Vector2(0, 0), 0.0404869, 0.0404869, 0, 0, Vector2(30, 1), 0.0, 0.0, 0, 0, Vector2(90, 0), 0.0, 0.0, 0, 0]
+point_count = 5
+
+[sub_resource type="Curve" id="Curve_mqyat"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.494681, 0.494382), 0.970544, 0.970544, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_bo153"]
+size = Vector3(5, 2, 12)
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_jwdad"]
+
+[node name="Aircraft" type="RigidBody3D"]
+mass = 10000.0
+script = ExtResource("1_bo153")
+engine_thrust = 600000.0
+lift_power = 1.0
+h_stabilizer_power = 0.25
+lift_power_flaps = 0.5
+steering_power = 1.0
+dragRight = 20.0
+dragLeft = 20.0
+dragTop = 20.0
+dragBottom = 20.0
+dragForward = 0.001
+dragBack = 20.0
+turnAcceleration = Vector3(4, 4, 4)
+turnDeflection = Vector3(5, 5, 5)
+turnSpeed = Vector3(0.5, 0.25, 1)
+LiftCurve = SubResource("Curve_jwdad")
+SteeringCurve = SubResource("Curve_mqyat")
+Induced_Drag = 0.001
+wing_offset = 0.5
+tail_offset = 6.0
+aliron_offset = 4.5
+Power = Vector3(100, 100, 100)
+
+[node name="AircraftModel" parent="." node_paths=PackedStringArray("aircraft") instance=ExtResource("1_0lgdb")]
+script = ExtResource("3_mqyat")
+aircraft = NodePath("..")
+
+[node name="AircraftCollisionShape" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.744561)
+shape = SubResource("BoxShape3D_bo153")
+
+[node name="CameraGimbal" type="Node3D" parent="."]
+
+[node name="Camera3D" type="Camera3D" parent="CameraGimbal"]
+transform = Transform3D(1, 0, 0, 0, 0.996195, 0.0871557, 0, -0.0871557, 0.996195, 0, 4.59325, 13.3197)
+fov = 90.0
+far = 20000.0
+
+[node name="HUD" parent="." node_paths=PackedStringArray("aircarft") instance=ExtResource("3_jwdad")]
+aircarft = NodePath("..")
+
+[node name="Gear" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2, -1, 1)
+shape = SubResource("CapsuleShape3D_jwdad")
+
+[node name="Gear2" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.2, -1, 1)
+shape = SubResource("CapsuleShape3D_jwdad")
+
+[node name="Gear3" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.2, -5)
+shape = SubResource("CapsuleShape3D_jwdad")
