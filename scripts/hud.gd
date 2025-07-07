@@ -18,6 +18,11 @@ extends Control
 @onready var Alt_Label = $AltSpeedContainer/Alt
 @onready var Spd_Label = $AltSpeedContainer/Speed
 @onready var throttle_meter = $ThrottleContainer/TickSmall
+@onready var Auto_Throttle_Cont = $Auto_Throttle_Cont
+@onready var Auto_Throttle_Label = $Auto_Throttle_Cont/Auto_Throttle_Label
+
+@onready var Gear_Cont = $Gear_Cont
+@onready var Gear_Cont_Label = $Gear_Cont/Gear_Label
 
 func _physics_process(delta: float) -> void:
 	if aircraft:
@@ -28,8 +33,13 @@ func _physics_process(delta: float) -> void:
 		#drag_label.text = "Thr Setting: " + str(aircraft.throttle_setting)
 		Alt_Label.text = "%d" % int(aircraft.global_position.y)
 		Spd_Label.text = "%d" % int(aircraft.forward_air_speed)
+		Auto_Throttle_Label.visible = aircraft.auto_throttle
+		Gear_Cont_Label.visible = aircraft.landing_gear_down
+		
 		
 		project_2D_elemnt(boresight,250,Vector2.ZERO)
+		project_2D_elemnt(Auto_Throttle_Cont,150,Vector2(-175,100))
+		project_2D_elemnt(Gear_Cont,150,Vector2(-225,80))
 		project_2D_elemnt(throttle_container,150,Vector2.ZERO)
 		project_2D_elemnt(AltSpeedContainer,150,Vector2(-190,-16))
 		project_velocity(velocity)

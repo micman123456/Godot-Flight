@@ -1,11 +1,11 @@
-[gd_scene load_steps=11 format=3 uid="uid://boxr4cw24qv4b"]
+[gd_scene load_steps=13 format=3 uid="uid://boxr4cw24qv4b"]
 
 [ext_resource type="PackedScene" uid="uid://c4cymukcksy1d" path="res://scenes/f_15.tscn" id="1_0lgdb"]
 [ext_resource type="Script" uid="uid://cs3akmwrohcyr" path="res://scripts/aircraft.gd" id="1_bo153"]
 [ext_resource type="PackedScene" uid="uid://ce354qef3vhlv" path="res://scenes/hud.tscn" id="3_jwdad"]
-[ext_resource type="Script" uid="uid://dd101hqqv5sx3" path="res://scripts/aircraft_model.gd" id="3_mqyat"]
 [ext_resource type="AudioStream" uid="uid://x63i5rp6wgvb" path="res://sounds/idle.ogg" id="4_q3n5c"]
 [ext_resource type="Script" uid="uid://c27e8qusf17en" path="res://scripts/camera_gimbal.gd" id="4_w40ee"]
+[ext_resource type="AudioStream" uid="uid://cqgwfk4scg5lr" path="res://sounds/high_power.ogg" id="5_uh6qh"]
 
 [sub_resource type="Curve" id="Curve_jwdad"]
 _limits = [-1.0, 1.0, -90.0, 90.0]
@@ -23,8 +23,14 @@ point_count = 2
 [sub_resource type="BoxShape3D" id="BoxShape3D_bo153"]
 size = Vector3(5, 2, 12)
 
-[node name="Aircraft" type="RigidBody3D" node_paths=PackedStringArray("CameraGimble")]
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_q3n5c"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_uh6qh"]
+
+[node name="Aircraft" type="RigidBody3D" node_paths=PackedStringArray("CameraGimble", "NoseCollision", "LeftGearCollision", "RightGearCollision")]
 mass = 10000.0
+contact_monitor = true
+max_contacts_reported = 4
 angular_damp = 5.0
 script = ExtResource("1_bo153")
 engine_thrust = 1e+06
@@ -37,10 +43,11 @@ dragRight = 40.0
 dragLeft = 40.0
 dragTop = 40.0
 dragBottom = 40.0
-dragForward = 0.01
+dragForward = 0.1
 dragBack = 40.0
-dragFlaps = 0.05
-dragAirbrake = 1.0
+dragFlaps = 1.0
+dragAirbrake = 5.0
+dragGear = 5.0
 turnAcceleration = Vector3(1, 2, 2.5)
 turnDeflection = Vector3(5, 5, 5)
 turnSpeed = Vector3(4, 4, 5)
@@ -50,17 +57,20 @@ Induced_Drag = 0.001
 wing_offset = 0.5
 tail_offset = 6.0
 aliron_offset = 4.5
-Power = Vector3(260, 100, 110)
+Power = Vector3(260, 100, 200)
 air_res_curve = SubResource("Curve_w40ee")
 angular_drag_coe = Vector3(0.1, 0.1, 0.1)
 glimit = 8.0
 glimit_down = 4.0
 CameraGimble = NodePath("CameraGimbal")
+NoseCollision = NodePath("NoseGearCollision")
+LeftGearCollision = NodePath("LeftGearCollision")
+RightGearCollision = NodePath("RightGearCollision")
 
 [node name="AircraftModel" parent="." node_paths=PackedStringArray("aircraft") instance=ExtResource("1_0lgdb")]
-script = ExtResource("3_mqyat")
 aircraft = NodePath("..")
 EngineSoundLoop = ExtResource("4_q3n5c")
+EngineSoundAferburner = ExtResource("5_uh6qh")
 
 [node name="AircraftCollisionShape" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.744561)
@@ -79,3 +89,15 @@ far = 20000.0
 [node name="HUD" parent="." node_paths=PackedStringArray("aircraft", "camera") instance=ExtResource("3_jwdad")]
 aircraft = NodePath("..")
 camera = NodePath("../CameraGimbal/Camera3D")
+
+[node name="NoseGearCollision" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.54983, -5.256)
+shape = SubResource("CapsuleShape3D_q3n5c")
+
+[node name="LeftGearCollision" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.44579, -1.054, 1.554)
+shape = SubResource("CapsuleShape3D_uh6qh")
+
+[node name="RightGearCollision" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.446, -1.054, 1.554)
+shape = SubResource("CapsuleShape3D_uh6qh")

@@ -1,0 +1,47 @@
+[gd_scene load_steps=6 format=3 uid="uid://duu2cxx7myw1n"]
+
+[sub_resource type="Gradient" id="Gradient_7ciof"]
+offsets = PackedFloat32Array(0.281818, 0.645455)
+colors = PackedColorArray(0, 0, 0, 1, 0.360784, 0.196078, 0.105882, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_oic8n"]
+gradient = SubResource("Gradient_7ciof")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_few0k"]
+particle_flag_rotate_y = true
+angle_min = 1.07288e-05
+angle_max = 360.0
+direction = Vector3(0, 1, 0)
+spread = 0.0
+initial_velocity_max = 4.0
+angular_velocity_min = -1.60933e-05
+angular_velocity_max = 80.0
+gravity = Vector3(0, 0, 0)
+scale_min = 0.1
+color_initial_ramp = SubResource("GradientTexture1D_oic8n")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0dcye"]
+transparency = 1
+blend_mode = 1
+shading_mode = 0
+vertex_color_use_as_albedo = true
+albedo_color = Color(0.359804, 0.196694, 0.107348, 1)
+billboard_mode = 3
+billboard_keep_scale = true
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="QuadMesh" id="QuadMesh_cb7as"]
+material = SubResource("StandardMaterial3D_0dcye")
+
+[node name="Afterburner" type="Node3D"]
+
+[node name="GPUParticles3D" type="GPUParticles3D" parent="."]
+amount = 400
+lifetime = 0.35
+randomness = 1.0
+fixed_fps = 60
+local_coords = true
+process_material = SubResource("ParticleProcessMaterial_few0k")
+draw_pass_1 = SubResource("QuadMesh_cb7as")

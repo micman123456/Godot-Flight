@@ -24,6 +24,9 @@ var ailerons_range: int = 25
 @export var DragFactorFlap2: float = 0.01
 
 @export var EngineSoundLoop: AudioStream
+@export var EngineSoundAferburner: AudioStream
+
+@export var gear_down : bool = true
 
 # F-15 and Components
 @onready var LeftElevator = $LeftElevator
@@ -40,8 +43,14 @@ var ailerons_range: int = 25
 
 @onready var Airbrake = $Airbrake
 @onready var EngineAudio = $EngineAudio
+@onready var AfterburnerAudio = $AfterburnerAudio
 
+@onready var Exhaust_Left = $ExhaustHeatLeft
+@onready var Exhaust_Right = $ExhaustHeatRight
 
+@onready var Afterburner1 = $Afterburner1
+@onready var Afterburner2 = $Afterburner2
+@onready var Animation_Player = $AnimationPlayer
 
 # Moving states for Components
 var FlapsMoving: bool = false
@@ -82,11 +91,18 @@ var Airbrake_Speed = 15.0
 var AirbrakeMoving : bool = false
 var AirbrakeDeployed : bool = false
 
+
 func _ready():
 	aircraft.connect("update_air_devices", Callable(self, "update_air_devices"))
+	aircraft.connect("toggle_gear",Callable(self,"toggle_gear"))
+
 	if EngineAudio and EngineSoundLoop:
 		EngineAudio.stream = EngineSoundLoop
 		EngineAudio.volume_db = 10
+	if AfterburnerAudio and EngineSoundAferburner:
+		AfterburnerAudio.stream = EngineSoundAferburner
+		AfterburnerAudio.volume_db = 0
+	
 
 
 func _on_control_surface_update(axis: String, value: float):
@@ -113,6 +129,10 @@ func _process(delta: float) -> void:
 	if aircraft:
 		update_control_input(aircraft.effective_input)
 		handle_engine_audio()
+		handle_engine_animation()
+		aircraft.landing_gear_down = gear_down
+		
+	
 	
 	# Update movements
 	if FlapsMoving:
@@ -159,8 +179,12 @@ func setAirbrake(input:bool):
 		Airbrake_target_angle = ab_range_max()
 	
 	AirbrakeMoving = true
-	
-	
+
+
+#func setAfterburner():
+	#if Afterburner:
+		#
+		
 
 func MoveFlaps(delta: float):
 	# Smoothly interpolate the current flap angle toward the target angle
@@ -299,11 +323,50 @@ func handle_engine_audio():
 	if not EngineAudio.is_playing():
 		EngineAudio.play()
 	EngineAudio.pitch_scale = power_to_pitch(aircraft.throttle_setting)
+	if aircraft.throttle_setting >= 0.85:
+		if not AfterburnerAudio.is_playing():
+			AfterburnerAudio.play()
+		AfterburnerAudio.volume_db = 20*aircraft.throttle_setting
+	else:
+		AfterburnerAudio.stop()
 		
-
+	
+		
+func handle_engine_animation():
+	if aircraft.throttle_setting >= 0.85:
+		Afterburner1.visible = true
+		Afterburner2.visible = true
+		Exhaust_Left.visible = false
+		Exhaust_Right.visible = false
+	else:
+		Afterburner1.visible = false
+		Afterburner2.visible = false
+		Exhaust_Left.visible = true
+		Exhaust_Right.visible = true
+		
+		
+	
 
 func power_to_pitch(value: float) -> float:
 	return 0.2 + value*0.8
 
-
+func toggle_gear():
+	if gear_down:
+		Animation_Player.play("gear_up")
+	else:
+		Animation_Player.play("gear_down")
 	
+	
+
+
+#func gear_up():
+	#if not gear_out:
+		#return
+	#Animation_Player.play("gear_up")
+	#gear_out = false
+	#
+#func gear_down():
+	#if gear_out:
+		#return
+	#Animation_Player.play("gear_down")
+	#gear_out = true

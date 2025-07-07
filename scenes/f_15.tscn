@@ -1,13 +1,24 @@
-[gd_scene load_steps=8 format=3 uid="uid://c4cymukcksy1d"]
+[gd_scene load_steps=23 format=3 uid="uid://c4cymukcksy1d"]
 
 [ext_resource type="PackedScene" uid="uid://d0qx5smmwcawl" path="res://entities/aircraft/f15.glb" id="1_v671m"]
 [ext_resource type="Shader" uid="uid://htijpua74vxv" path="res://shaders/exhaust.gdshader" id="2_2exjx"]
+[ext_resource type="Script" uid="uid://dd101hqqv5sx3" path="res://scripts/aircraft_model.gd" id="2_2mme6"]
+[ext_resource type="PackedScene" uid="uid://duu2cxx7myw1n" path="res://scenes/afterburner.tscn" id="2_3t6no"]
+[ext_resource type="Texture2D" uid="uid://dkmqvgipebqu2" path="res://demo/assets/textures/Tornado1.png" id="3_le2s0"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_v671m"]
 vertex_color_use_as_albedo = true
 albedo_color = Color(0.164706, 0.180392, 0.2, 1)
 roughness = 0.7
 ao_enabled = true
+
+[sub_resource type="QuadMesh" id="QuadMesh_2mme6"]
+orientation = 1
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_f1gj3"]
+transparency = 1
+shading_mode = 0
+albedo_texture = ExtResource("3_le2s0")
 
 [sub_resource type="NoiseTexture2D" id="NoiseTexture2D_2exjx"]
 
@@ -27,7 +38,625 @@ shader = ExtResource("2_2exjx")
 shader_parameter/noise_texture = SubResource("NoiseTexture2D_2exjx")
 shader_parameter/speed = 0.0
 
+[sub_resource type="CylinderMesh" id="CylinderMesh_2mme6"]
+top_radius = 0.1
+bottom_radius = 0.1
+height = 1.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_06rwy"]
+albedo_color = Color(0.351563, 0.351563, 0.351563, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_govty"]
+material = SubResource("StandardMaterial3D_06rwy")
+top_radius = 0.35
+bottom_radius = 0.35
+height = 0.2
+
+[sub_resource type="BoxMesh" id="BoxMesh_ln2mc"]
+size = Vector3(0.1, 0.25, 0.1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_ahgj2"]
+size = Vector3(0.5, 2, 0.01)
+
+[sub_resource type="BoxMesh" id="BoxMesh_26w0v"]
+size = Vector3(0.5, 0.75, 0.05)
+
+[sub_resource type="Animation" id="Animation_2mme6"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Rightgear:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(-0.8, -0.877, 0.453)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Rightgear:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("RightDoor:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(-0.65, -1.116, 1.586)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("RightDoor:rotation")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(8.74228e-08, -1.5708, 3.14159)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Leftgear:position")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.8, -0.877, 0.453)]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Leftgear:rotation")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0)]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("LeftDoor:position")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.65, -1.116, 1.586)]
+}
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("LeftDoor:rotation")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 1.5708, 0)]
+}
+tracks/8/type = "value"
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/path = NodePath("Nosegear:position")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, -1.05738, -6.30566)]
+}
+tracks/9/type = "value"
+tracks/9/imported = false
+tracks/9/enabled = true
+tracks/9/path = NodePath("Nosegear:rotation")
+tracks/9/interp = 1
+tracks/9/loop_wrap = true
+tracks/9/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0)]
+}
+tracks/10/type = "value"
+tracks/10/imported = false
+tracks/10/enabled = true
+tracks/10/path = NodePath("Rightgear:visible")
+tracks/10/interp = 1
+tracks/10/loop_wrap = true
+tracks/10/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/11/type = "value"
+tracks/11/imported = false
+tracks/11/enabled = true
+tracks/11/path = NodePath("RightDoor:visible")
+tracks/11/interp = 1
+tracks/11/loop_wrap = true
+tracks/11/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/12/type = "value"
+tracks/12/imported = false
+tracks/12/enabled = true
+tracks/12/path = NodePath("Leftgear:visible")
+tracks/12/interp = 1
+tracks/12/loop_wrap = true
+tracks/12/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/13/type = "value"
+tracks/13/imported = false
+tracks/13/enabled = true
+tracks/13/path = NodePath("LeftDoor:visible")
+tracks/13/interp = 1
+tracks/13/loop_wrap = true
+tracks/13/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/14/type = "value"
+tracks/14/imported = false
+tracks/14/enabled = true
+tracks/14/path = NodePath("Nosegear:visible")
+tracks/14/interp = 1
+tracks/14/loop_wrap = true
+tracks/14/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/15/type = "value"
+tracks/15/imported = false
+tracks/15/enabled = true
+tracks/15/path = NodePath(".:gear_down")
+tracks/15/interp = 1
+tracks/15/loop_wrap = true
+tracks/15/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+
+[sub_resource type="Animation" id="Animation_f1gj3"]
+resource_name = "gear_down"
+length = 6.0
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Leftgear:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.966667, 5.46667),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0.6, 0.6, 0.453), Vector3(0.8, -0.877, 0.453)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Nosegear:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 3.46667),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 0.65, -6.306), Vector3(0, -1.05738, -6.30566)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Rightgear:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(1.96667, 5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(-0.6, 0.6, 0.4), Vector3(-0.8, -0.877, 0.453)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Leftgear:rotation")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0.966667, 5.46667),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(1.5708, 0, 0), Vector3(0, 0, 0)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Nosegear:rotation")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 3.46667),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(1.5708, 0, 0), Vector3(0, 0, 0)]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Rightgear:rotation")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(1.96667, 5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(1.5708, 0, 0), Vector3(0, 0, 0)]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("LeftDoor:position")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0.466667, 1.73333),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0.6, 0.6, 1.586), Vector3(0.65, -1.116, 1.586)]
+}
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("RightDoor:position")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0, 1.46667),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(-0.6, 0.6, 1.586), Vector3(-0.65, -1.116, 1.586)]
+}
+tracks/8/type = "value"
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/path = NodePath("LeftDoor:rotation")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/keys = {
+"times": PackedFloat32Array(0.466667, 1.73333),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(1.5708, 1.5708, 0), Vector3(0, 1.5708, 0)]
+}
+tracks/9/type = "value"
+tracks/9/imported = false
+tracks/9/enabled = true
+tracks/9/path = NodePath("RightDoor:rotation")
+tracks/9/interp = 1
+tracks/9/loop_wrap = true
+tracks/9/keys = {
+"times": PackedFloat32Array(0, 1.46667),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(-1.5708, -1.5708, 3.14159), Vector3(8.74228e-08, -1.5708, 3.14159)]
+}
+tracks/10/type = "value"
+tracks/10/imported = false
+tracks/10/enabled = true
+tracks/10/path = NodePath(".:gear_down")
+tracks/10/interp = 1
+tracks/10/loop_wrap = true
+tracks/10/keys = {
+"times": PackedFloat32Array(5.96667),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/11/type = "value"
+tracks/11/imported = false
+tracks/11/enabled = true
+tracks/11/path = NodePath("Rightgear:visible")
+tracks/11/interp = 1
+tracks/11/loop_wrap = true
+tracks/11/keys = {
+"times": PackedFloat32Array(0, 0.866667),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, true]
+}
+tracks/12/type = "value"
+tracks/12/imported = false
+tracks/12/enabled = true
+tracks/12/path = NodePath("Nosegear:visible")
+tracks/12/interp = 1
+tracks/12/loop_wrap = true
+tracks/12/keys = {
+"times": PackedFloat32Array(0, 0.866667),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, true]
+}
+tracks/13/type = "value"
+tracks/13/imported = false
+tracks/13/enabled = true
+tracks/13/path = NodePath("LeftDoor:visible")
+tracks/13/interp = 1
+tracks/13/loop_wrap = true
+tracks/13/keys = {
+"times": PackedFloat32Array(0, 0.866667),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, true]
+}
+tracks/14/type = "value"
+tracks/14/imported = false
+tracks/14/enabled = true
+tracks/14/path = NodePath("Leftgear:visible")
+tracks/14/interp = 1
+tracks/14/loop_wrap = true
+tracks/14/keys = {
+"times": PackedFloat32Array(0, 0.866667),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, true]
+}
+tracks/15/type = "value"
+tracks/15/imported = false
+tracks/15/enabled = true
+tracks/15/path = NodePath("RightDoor:visible")
+tracks/15/interp = 1
+tracks/15/loop_wrap = true
+tracks/15/keys = {
+"times": PackedFloat32Array(0, 0.866667),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, true]
+}
+
+[sub_resource type="Animation" id="Animation_le2s0"]
+resource_name = "gear_up"
+length = 6.0
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Rightgear:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.766667, 4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(-0.8, -0.877, 0.453), Vector3(-0.6, 0.6, 0.4)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Rightgear:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0.766667, 4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(1.5708, 0, 0)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("RightDoor:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(3.66667, 6),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(-0.65, -1.116, 1.586), Vector3(-0.6, -0.6, 1.586)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("RightDoor:rotation")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(3.66667, 6),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(8.74228e-08, -1.5708, 3.14159), Vector3(-1.5708, -1.5708, 3.14159)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Leftgear:position")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 2.96667),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0.8, -0.877, 0.453), Vector3(0.6, 0.6, 0.4)]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Leftgear:rotation")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0, 2.96667),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(1.5708, 0, 0)]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("LeftDoor:position")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(3, 5.93333),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0.65, -1.116, 1.586), Vector3(0.6, -0.6, 1.586)]
+}
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("LeftDoor:rotation")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(3, 5.93333),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 1.5708, 0), Vector3(-1.5708, 1.5708, 0)]
+}
+tracks/8/type = "value"
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/path = NodePath("Nosegear:position")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/keys = {
+"times": PackedFloat32Array(0, 3),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, -1.05738, -6.30566), Vector3(0, 0.7, -6.306)]
+}
+tracks/9/type = "value"
+tracks/9/imported = false
+tracks/9/enabled = true
+tracks/9/path = NodePath("Nosegear:rotation")
+tracks/9/interp = 1
+tracks/9/loop_wrap = true
+tracks/9/keys = {
+"times": PackedFloat32Array(0, 3),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(1.5708, 0, 0)]
+}
+tracks/10/type = "value"
+tracks/10/imported = false
+tracks/10/enabled = true
+tracks/10/path = NodePath("Rightgear:visible")
+tracks/10/interp = 1
+tracks/10/loop_wrap = true
+tracks/10/keys = {
+"times": PackedFloat32Array(0, 6),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
+}
+tracks/11/type = "value"
+tracks/11/imported = false
+tracks/11/enabled = true
+tracks/11/path = NodePath("RightDoor:visible")
+tracks/11/interp = 1
+tracks/11/loop_wrap = true
+tracks/11/keys = {
+"times": PackedFloat32Array(0, 6),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
+}
+tracks/12/type = "value"
+tracks/12/imported = false
+tracks/12/enabled = true
+tracks/12/path = NodePath("Leftgear:visible")
+tracks/12/interp = 1
+tracks/12/loop_wrap = true
+tracks/12/keys = {
+"times": PackedFloat32Array(0, 5.96667),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
+}
+tracks/13/type = "value"
+tracks/13/imported = false
+tracks/13/enabled = true
+tracks/13/path = NodePath("LeftDoor:visible")
+tracks/13/interp = 1
+tracks/13/loop_wrap = true
+tracks/13/keys = {
+"times": PackedFloat32Array(0, 5.93333),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
+}
+tracks/14/type = "value"
+tracks/14/imported = false
+tracks/14/enabled = true
+tracks/14/path = NodePath("Nosegear:visible")
+tracks/14/interp = 1
+tracks/14/loop_wrap = true
+tracks/14/keys = {
+"times": PackedFloat32Array(0, 5.93333),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
+}
+tracks/15/type = "value"
+tracks/15/imported = false
+tracks/15/enabled = true
+tracks/15/path = NodePath(".:gear_down")
+tracks/15/interp = 1
+tracks/15/loop_wrap = true
+tracks/15/keys = {
+"times": PackedFloat32Array(5.96667),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_2mme6"]
+_data = {
+&"RESET": SubResource("Animation_2mme6"),
+&"gear_down": SubResource("Animation_f1gj3"),
+&"gear_up": SubResource("Animation_le2s0")
+}
+
 [node name="f15" instance=ExtResource("1_v671m")]
+script = ExtResource("2_2mme6")
 
 [node name="Fuselage" parent="." index="0"]
 surface_material_override/0 = SubResource("StandardMaterial3D_v671m")
@@ -80,14 +709,107 @@ surface_material_override/0 = SubResource("StandardMaterial3D_v671m")
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0.82473, -3.48151)
 surface_material_override/0 = SubResource("StandardMaterial3D_v671m")
 
+[node name="Particles" parent="Afterburner1" index="0" instance=ExtResource("2_3t6no")]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 2.84217e-14, 0, -2.84217e-14, 0.5, 0, -0.2, 0)
+
+[node name="EngineFire" type="MeshInstance3D" parent="Afterburner1" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 2.84217e-14, 0, -2.84217e-14, 1, 0, -1.33222, 4.74975e-07)
+mesh = SubResource("QuadMesh_2mme6")
+surface_material_override/0 = SubResource("StandardMaterial3D_f1gj3")
+
+[node name="Particles" parent="Afterburner2" index="0" instance=ExtResource("2_3t6no")]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 2.84217e-14, 0, -2.84217e-14, 0.5, 0, -0.199951, 6.89179e-08)
+
+[node name="EngineFire" type="MeshInstance3D" parent="Afterburner2" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 2.84217e-14, 0, -2.84217e-14, 1, 0, -1.33222, 4.74975e-07)
+mesh = SubResource("QuadMesh_2mme6")
+surface_material_override/0 = SubResource("StandardMaterial3D_f1gj3")
+
 [node name="ExhaustHeatLeft" type="MeshInstance3D" parent="." index="21"]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, -0.678, -0.037, 5.5)
+visible = false
 material_override = SubResource("ShaderMaterial_3t6no")
 mesh = SubResource("CylinderMesh_le2s0")
 
 [node name="ExhaustHeatRight" type="MeshInstance3D" parent="." index="22"]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0.678, -0.037, 5.5)
+visible = false
 material_override = SubResource("ShaderMaterial_le2s0")
 mesh = SubResource("CylinderMesh_le2s0")
 
 [node name="EngineAudio" type="AudioStreamPlayer3D" parent="." index="23"]
+
+[node name="AfterburnerAudio" type="AudioStreamPlayer3D" parent="." index="24"]
+
+[node name="Nosegear" type="Node3D" parent="." index="25"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.05738, -6.30566)
+
+[node name="Strut" type="MeshInstance3D" parent="Nosegear" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.16608, 1.06848)
+mesh = SubResource("CylinderMesh_2mme6")
+surface_material_override/0 = SubResource("StandardMaterial3D_v671m")
+
+[node name="Wheel" type="MeshInstance3D" parent="Nosegear" index="1"]
+transform = Transform3D(-4.37114e-08, 1, -4.37114e-08, 0, -4.37114e-08, -1, -1, -4.37114e-08, 1.91069e-15, 0, -0.881103, 1.05928)
+mesh = SubResource("CylinderMesh_govty")
+
+[node name="Bearing" type="MeshInstance3D" parent="Nosegear" index="2"]
+transform = Transform3D(0.999983, 0.00582936, 0, -0.00582936, 0.999983, 0, 0, 0, 1, -0.15106, -0.704506, 1.07998)
+mesh = SubResource("BoxMesh_ln2mc")
+surface_material_override/0 = SubResource("StandardMaterial3D_v671m")
+
+[node name="Door" type="MeshInstance3D" parent="Nosegear" index="3"]
+transform = Transform3D(1, 0, 0, 0, -1, 8.74228e-08, 0, -8.74228e-08, -1, 0, -0.0560017, 1.44242)
+mesh = SubResource("BoxMesh_ahgj2")
+surface_material_override/0 = SubResource("StandardMaterial3D_v671m")
+
+[node name="LeftDoor" type="MeshInstance3D" parent="." index="26"]
+transform = Transform3D(-3.61999e-06, 0, 1, 0, 1, 0, -1, 0, -3.61999e-06, 0.65, -1.116, 1.586)
+mesh = SubResource("BoxMesh_26w0v")
+skeleton = NodePath("../Leftgear")
+surface_material_override/0 = SubResource("StandardMaterial3D_v671m")
+
+[node name="Leftgear" type="Node3D" parent="." index="27"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.8, -0.877, 0.453)
+
+[node name="Strut" type="MeshInstance3D" parent="Leftgear" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.372286, -0.16608, 1.06848)
+mesh = SubResource("CylinderMesh_2mme6")
+surface_material_override/0 = SubResource("StandardMaterial3D_v671m")
+
+[node name="Wheel" type="MeshInstance3D" parent="Leftgear" index="1"]
+transform = Transform3D(-4.37114e-08, 1, -4.37114e-08, 0, -4.37114e-08, -1, -1, -4.37114e-08, 1.91069e-15, 0.372286, -0.881103, 1.05928)
+mesh = SubResource("CylinderMesh_govty")
+
+[node name="Bearing" type="MeshInstance3D" parent="Leftgear" index="2"]
+transform = Transform3D(0.999983, 0.00582936, 0, -0.00582936, 0.999983, 0, 0, 0, 1, 0.372286, -0.704506, 1.07998)
+mesh = SubResource("BoxMesh_ln2mc")
+surface_material_override/0 = SubResource("StandardMaterial3D_v671m")
+
+[node name="RightDoor" type="MeshInstance3D" parent="." index="28"]
+transform = Transform3D(3.61999e-06, 8.7432e-08, -1, 2.53518e-06, -1, -8.74228e-08, -1, -2.53518e-06, -3.61999e-06, -0.65, -1.116, 1.586)
+mesh = SubResource("BoxMesh_26w0v")
+skeleton = NodePath("../Rightgear")
+surface_material_override/0 = SubResource("StandardMaterial3D_v671m")
+
+[node name="Rightgear" type="Node3D" parent="." index="29"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.8, -0.877, 0.453)
+
+[node name="Strut" type="MeshInstance3D" parent="Rightgear" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.372, -0.16608, 1.06848)
+mesh = SubResource("CylinderMesh_2mme6")
+surface_material_override/0 = SubResource("StandardMaterial3D_v671m")
+
+[node name="Wheel" type="MeshInstance3D" parent="Rightgear" index="1"]
+transform = Transform3D(-4.37114e-08, 1, -4.37114e-08, 0, -4.37114e-08, -1, -1, -4.37114e-08, 1.91069e-15, -0.372, -0.881103, 1.05928)
+mesh = SubResource("CylinderMesh_govty")
+
+[node name="Bearing" type="MeshInstance3D" parent="Rightgear" index="2"]
+transform = Transform3D(0.999983, 0.00582936, 0, -0.00582936, 0.999983, 0, 0, 0, 1, -0.372, -0.704506, 1.07998)
+mesh = SubResource("BoxMesh_ln2mc")
+surface_material_override/0 = SubResource("StandardMaterial3D_v671m")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." index="30"]
+libraries = {
+&"": SubResource("AnimationLibrary_2mme6")
+}

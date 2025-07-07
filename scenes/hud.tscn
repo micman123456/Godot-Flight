@@ -107,3 +107,43 @@ text = "10000"
 custom_minimum_size = Vector2(48, 0)
 layout_mode = 2
 text = "1000"
+
+[node name="Auto_Throttle_Cont" type="HBoxContainer" parent="."]
+modulate = Color(0.184314, 0.968627, 0.156863, 1)
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.321181
+anchor_top = 0.623457
+anchor_right = 0.345486
+anchor_bottom = 0.625
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="Auto_Throttle_Label" type="Label" parent="Auto_Throttle_Cont"]
+layout_mode = 2
+text = "AT"
+
+[node name="Gear_Cont" type="HBoxContainer" parent="."]
+modulate = Color(0.184314, 0.968627, 0.156863, 1)
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.321181
+anchor_top = 0.623457
+anchor_right = 0.345486
+anchor_bottom = 0.625
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="Gear_Label" type="Label" parent="Gear_Cont"]
+layout_mode = 2
+text = "Gear Down"

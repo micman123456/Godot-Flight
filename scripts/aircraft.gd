@@ -2,6 +2,7 @@ class_name Aircraft
 extends RigidBody3D
 
 signal update_air_devices
+signal toggle_gear
 
 
 @export var engine_thrust : float
@@ -11,7 +12,7 @@ signal update_air_devices
 @export var lift_power_flaps : float
 @export var steering_power : float
 
-@export var drag_coefficient : Vector3
+
 @export var dragRight : float = 0
 @export var dragLeft : float = 0
 @export var dragTop : float = 0
@@ -20,6 +21,7 @@ signal update_air_devices
 @export var dragBack : float = 0
 @export var dragFlaps: float = 0
 @export var dragAirbrake: float = 0
+@export var dragGear: float = 0
 
 @export var turnAcceleration : Vector3
 @export var turnDeflection : Vector3
@@ -42,7 +44,25 @@ signal update_air_devices
 
 @export var CameraGimble : Node3D
 
+@export var NoseCollision : CollisionShape3D
+@export var LeftGearCollision : CollisionShape3D
+@export var RightGearCollision : CollisionShape3D
+@export var groundfriction : float = 1.0
+@export var stall_speed : float
+
+# auto thrl stuff
+@export var auto_throttle : bool = false
+@export var auto_throttle_speed : float = 120
+
+@export var Kp := 0.1
+@export var Ki := 0.05
+@export var Kd := 0.01
+
+
 const AIR_DENSITY_RHO = 1.225
+
+var stall : bool = false
+var landing_gear_down : bool = true
 
 var LiftForce : Vector3 = Vector3.ZERO
 var LiftForceYaw : Vector3 = Vector3.ZERO
@@ -63,29 +83,45 @@ var AngleOfAttack : float = 0
 var AngleOfAttackYaw : float = 0
 var LocalGForce : Vector3 = Vector3.ZERO
 var forward_air_speed : float = 0.0
-var throttle_setting : float = 0.5
+var throttle_setting : float = 0.0
 var drag_intensity_vector : Vector3 = Vector3.ZERO
 var control_input : Vector3
 var aircraft_input : Vector3
 var effective_input : Vector3
 var camera_input_vec : Vector2
 
+
+var stall_aoa : float = 45
+
 var flaps_deployed : bool = false
 var airbrake_deployed : bool = false
 var g_force : Vector3 
+var dead : bool = false
+var is_on_ground : bool = true
+
+
+
+var throttle_integral : float = 0.0
+var last_speed_error : float = 0.0
 
 
 func _ready() -> void:
-	linear_velocity = Vector3(0,0,-200)
+	#linear_velocity = Vector3(0,0,-200)
+	connect("body_shape_entered", Callable(self, "_on_Aircraft_body_shape_entered"))
 	pass
 	
 func _process(delta: float) -> void:
 	pass
 	
 func _physics_process(delta: float) -> void:
-	Update_Throttle_Input(delta)
-	Update_Flight_Control_Input(delta)
-	Update_Air_Devices_Input()
+	if not dead:
+		
+		Update_Throttle_Input(delta)
+		Update_Flight_Control_Input(delta)
+		Update_Air_Devices_Input()
+		handle_stall(delta)
+		
+	
 	Calulate_state()
 	Update_Drag()
 	Update_Angular_Drag()
@@ -93,7 +129,19 @@ func _physics_process(delta: float) -> void:
 	Update_Steering(delta)
 	Update_Camera_Input(delta)
 	Thrust(throttle_setting)
-	
+	Update_Landing_Collision()
+
+
+
+
+func _on_Aircraft_body_shape_entered(body_rid, body, body_shape_index, local_shape_index):
+	var crashed = handle_ground_contact()
+	if crashed:
+		dead = true
+		throttle_setting = 0
+		control_input = Vector3.ZERO
+		gravity_scale = 1.0
+		
 func Update_Camera_Input(delta:float):
 	var x_input = Input.get_joy_axis(0, JOY_AXIS_RIGHT_X)
 	var y_input = Input.get_joy_axis(0, JOY_AXIS_RIGHT_Y)
@@ -114,10 +162,16 @@ func Update_Camera_Input(delta:float):
 	
 
 func Update_Throttle_Input(delta):
+	var input = false
+	
 	if Input.is_action_pressed("throttle_down"):
 		throttle_setting = move_toward(throttle_setting,0,delta*0.5)
+		input = true 
 	if Input.is_action_pressed("throttle_up"):
 		throttle_setting = move_toward(throttle_setting,1,delta*0.5)
+		input = true 
+	if not input and auto_throttle:
+		throttle_setting = calulate_auto_thrl(delta)
 		
 func Update_Flight_Control_Input(delta):
 	var roll = Input.get_joy_axis(0, JOY_AXIS_LEFT_X)
@@ -153,6 +207,10 @@ func Update_Air_Devices_Input():
 	if Input.is_action_just_pressed("toggle_airbrake"):
 		airbrake_deployed = !airbrake_deployed
 		emit_signal("update_air_devices")
+	if Input.is_action_just_pressed("toggle_gear"):
+		emit_signal("toggle_gear")
+	if Input.is_action_just_pressed("toggle_auto_throttle"):
+		auto_throttle = !auto_throttle
 
 
 func Calulate_state():
@@ -161,6 +219,7 @@ func Calulate_state():
 	forward_air_speed = -LocalVelocity.z
 	AngleOfAttack = rad_to_deg(atan2(-LocalVelocity.y, -LocalVelocity.z))
 	AngleOfAttackYaw = rad_to_deg(atan2(LocalVelocity.x, -LocalVelocity.z))
+	LastVelocity = linear_velocity
 		
 
 func Thrust(current_power : float):
@@ -175,6 +234,8 @@ func Calculate_Drag():
 		forward_drag+=dragFlaps
 	if airbrake_deployed:
 		forward_drag+=dragAirbrake
+	if landing_gear_down:
+		forward_drag+= dragGear
 	
 	var drag_coefficient = Utils.scale6(LocalVelocity.normalized(),dragRight, dragLeft,
 		dragTop, dragBottom,
@@ -189,7 +250,9 @@ func Update_Drag():
 	var drag_local = Calculate_Drag()
 	var drag_global = global_transform.basis * drag_local
 	apply_force(drag_global)
-	
+
+
+# does nothing atm, could eventually replace angular damp with this 
 func Update_Angular_Drag():
 	
 	var speed_fraction = forward_air_speed/max_speed
@@ -245,6 +308,8 @@ func Update_Lift():
 	var vstab_lift = right_vector*vstab_lift_force
 	var hstab_lift = up_vector*hstab_lift_force
 	
+
+	
 	apply_force(wing_lift,forward_vector * wing_offset)
 	apply_force(vstab_lift,-forward_vector* tail_offset)
 	apply_force(hstab_lift,-forward_vector* tail_offset)
@@ -268,6 +333,7 @@ func Update_Lift_Adv():
 	var vstab_lift = right_vector*vstab_lift_force
 	var hstab_lift = up_vector*hstab_lift_force
 	
+	
 	apply_force(wing_lift,forward_vector * wing_offset)
 	apply_force(vstab_lift,-forward_vector* tail_offset)
 	apply_force(hstab_lift,-forward_vector* tail_offset)
@@ -276,8 +342,9 @@ func Calculate_Steering(delta:float,av:float,target_av:float,acc:float):
 	var error = target_av - av
 	var acceleration = acc*delta
 	return clamp(error,-acceleration,acceleration)
-	
-func Update_Steering_FBW(delta:float):
+
+# moves the av to 0 if there's no flight input
+func auto_stabilize(delta:float):
 	
 	if (LocalVelocity.length()<10.0):
 		return
@@ -316,7 +383,7 @@ func Update_Steering_FBW(delta:float):
 	
 func Update_Steering(delta:float):
 	if aircraft_input.length() < 0.1:
-		Update_Steering_FBW(delta)
+		auto_stabilize(delta)
 		return
 		
 	apply_control_surface_forces(control_input)
@@ -334,7 +401,7 @@ func apply_control_surface_forces(control_input: Vector3):
 	control_input = control_input*g_scale
 	
 	
-	# === Elevator (Pitch) ===
+	# Elevator (Pitch)
 	if control_input.x != 0.0:
 		var force_up = -global_transform.basis.y * control_input.x * airflow * Power.x
 		var force_down = global_transform.basis.y * control_input.x * airflow * Power.x
@@ -342,14 +409,14 @@ func apply_control_surface_forces(control_input: Vector3):
 		apply_force(force_up,-forward_vector*tail_offset)
 		#apply_force(force_down,-forward_vector*tail_offset)
 		
-	# === Rudder (Yaw) ===
+	# Rudder (Yaw)
 	if control_input.y != 0.0:
 		var force_rd_left = -global_transform.basis.x * control_input.y * airflow * 0.5 * Power.y
 		var force_rd_right = global_transform.basis.x * control_input.y * airflow * 0.5 * Power.y
 		#apply_force(force_rd_left, -forward_vector*tail_offset)
 		apply_force(force_rd_right, -forward_vector*tail_offset)
 
-	# === Ailerons (Roll) ===
+	# Ailerons (Roll) 
 	if control_input.z != 0.0:
 		var force_left = -global_transform.basis.y * control_input.z * airflow * 0.5 * Power.z
 		var force_right = global_transform.basis.y * control_input.z * airflow * 0.5 * Power.z
@@ -375,3 +442,59 @@ func UpdateGLimiter(input:Vector3):
 		return limit.length() / actual.length()
 	else:
 		return 1.0
+
+# increasing the gravitiy scale simulates a realistic stall
+# very much so a hack and should be fixed
+func handle_stall(delta:float):
+	stall = check_stall()
+	if stall:
+		gravity_scale = move_toward(gravity_scale,5.0,delta)
+	else:
+		gravity_scale = move_toward(gravity_scale,1.0,delta*2)
+
+# PID controller, needs work to be more stable
+func calulate_auto_thrl(delta:float):
+	if forward_air_speed < stall_speed:
+		return move_toward(throttle_setting,1.0,delta)
+		
+	var error = auto_throttle_speed - forward_air_speed
+	
+	
+	throttle_integral += error * delta
+	# Derivative (rate of change of error)
+	var derivative = (error - last_speed_error) / delta
+	last_speed_error = error
+	
+	var output = Kp * error + Ki * throttle_integral + Kd * derivative
+	
+	var desired_throttle_setting = clamp(throttle_setting + output * delta, 0.0, 0.84)
+	
+	return move_toward(throttle_setting,desired_throttle_setting,delta)
+
+
+func check_stall():
+	if abs(AngleOfAttack) > stall_aoa:
+		return true
+	if forward_air_speed < stall_speed:
+		return true
+	return false
+
+func Update_Landing_Collision():
+	if landing_gear_down:
+		NoseCollision.disabled = false
+		LeftGearCollision.disabled = false
+		RightGearCollision.disabled = false
+	else:
+		NoseCollision.disabled = true
+		LeftGearCollision.disabled = true
+		RightGearCollision.disabled = true
+
+
+func handle_ground_contact():
+	if not landing_gear_down:
+		return true
+	var impact_force = linear_velocity - LastVelocity
+	if impact_force.length() > 50.0:
+		return true
+	return false
+	
