@@ -1,9 +1,6 @@
 extends Node3D
 
-
-
 @export var aircraft : Aircraft 
-
 
 var flap_step: int = 10
 
@@ -127,10 +124,10 @@ func update_air_devices():
 
 func _process(delta: float) -> void:
 	if aircraft:
-		update_control_input(aircraft.effective_input)
+		update_control_input(aircraft.aircraft_input)
 		handle_engine_audio()
 		handle_engine_animation()
-		aircraft.landing_gear_down = gear_down
+		
 		
 	
 	
@@ -180,11 +177,6 @@ func setAirbrake(input:bool):
 	
 	AirbrakeMoving = true
 
-
-#func setAfterburner():
-	#if Afterburner:
-		#
-		
 
 func MoveFlaps(delta: float):
 	# Smoothly interpolate the current flap angle toward the target angle

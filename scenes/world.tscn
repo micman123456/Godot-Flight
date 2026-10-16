@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://ct0vmbwwox2yv"]
+[gd_scene format=3 uid="uid://ct0vmbwwox2yv"]
 
 [ext_resource type="Texture2D" uid="uid://cm74l7fihf6hq" path="res://entities/background/syferfontein_0d_clear_puresky_8k.hdr" id="1_4wyf3"]
 [ext_resource type="PackedScene" uid="uid://b3wlrsjclhjj4" path="res://terrain/terrain.tscn" id="1_nnsk1"]
@@ -27,39 +27,36 @@ albedo_color = Color(0.151634, 0.141744, 0.138865, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_k0juu"]
 material = SubResource("StandardMaterial3D_4wyf3")
-size = Vector3(30, 1, 3000)
+size = Vector3(50, 1, 3000)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_71j4m"]
-size = Vector3(30, 1, 3000)
+size = Vector3(50, 1, 3000)
 
-[node name="World" type="Node3D"]
+[node name="World" type="Node3D" unique_id=393370000]
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1479083809]
 environment = SubResource("Environment_k0juu")
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=2014111186]
 transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 0, 0)
 shadow_enabled = true
 
-[node name="Aircraft" parent="." instance=ExtResource("1_rwgxs")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.49998, 9438.2)
-engine_thrust = 1.25e+06
-dragRight = 80.0
-dragLeft = 80.0
-dragTop = 80.0
-dragBottom = 80.0
-dragBack = 80.0
-stall_speed = 70.0
-auto_throttle_speed = 200.0
-Kd = 0.05
+[node name="Aircraft" parent="." unique_id=292525724 instance=ExtResource("1_rwgxs")]
+transform = Transform3D(1, 0, 0, 0, 0.97617954, -0.21696433, 0, 0.21696433, 0.97617954, 0, 390.58966, 9438.2)
+dragBack = 120.0
+dragFlaps = 1.5
+deflectionRate = Vector3(2, 5, 5)
+turnSpeed = Vector3(2.5, 1.5, 5)
+turnRate = Vector3(5, 3, 10)
+Induced_Drag = 0.5
 
-[node name="Terrain" parent="." instance=ExtResource("1_nnsk1")]
+[node name="Terrain" parent="." unique_id=184004635 instance=ExtResource("1_nnsk1")]
 
-[node name="Runway" type="StaticBody3D" parent="."]
+[node name="Runway" type="StaticBody3D" parent="." unique_id=340345151]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 7948.19)
 
-[node name="Runwaymesh" type="MeshInstance3D" parent="Runway"]
+[node name="Runwaymesh" type="MeshInstance3D" parent="Runway" unique_id=1431693513]
 mesh = SubResource("BoxMesh_k0juu")
 
-[node name="RunwayCol" type="CollisionShape3D" parent="Runway"]
+[node name="RunwayCol" type="CollisionShape3D" parent="Runway" unique_id=1865977424]
 shape = SubResource("BoxShape3D_71j4m")

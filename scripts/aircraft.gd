@@ -7,6 +7,7 @@ signal toggle_gear
 
 @export var engine_thrust : float
 @export var lift_power : float
+@export var induced_drag_power : float
 @export var h_stabilizer_power : float
 @export var v_stabilizer_power : float
 @export var lift_power_flaps : float
@@ -21,11 +22,14 @@ signal toggle_gear
 @export var dragBack : float = 0
 @export var dragFlaps: float = 0
 @export var dragAirbrake: float = 0
-@export var dragGear: float = 0
 
-@export var turnAcceleration : Vector3
-@export var turnDeflection : Vector3
+
+@export var glimit : float = 8
+@export var glimit_down : float = -4
+
+@export var deflectionRate : Vector3
 @export var turnSpeed : Vector3
+@export var turnRate : Vector3
 
 @export var LiftCurve : Curve
 @export var SteeringCurve : Curve
@@ -37,32 +41,10 @@ signal toggle_gear
 @export var max_speed : float = 600.0
 @export var Power : Vector3
 
-@export var air_res_curve : Curve
-@export var angular_drag_coe : Vector3
-@export var glimit : float
-@export var glimit_down : float
 
 @export var CameraGimble : Node3D
 
-@export var NoseCollision : CollisionShape3D
-@export var LeftGearCollision : CollisionShape3D
-@export var RightGearCollision : CollisionShape3D
-@export var groundfriction : float = 1.0
-@export var stall_speed : float
-
-# auto thrl stuff
-@export var auto_throttle : bool = false
-@export var auto_throttle_speed : float = 120
-
-@export var Kp := 0.1
-@export var Ki := 0.05
-@export var Kd := 0.01
-
-
 const AIR_DENSITY_RHO = 1.225
-
-var stall : bool = false
-var landing_gear_down : bool = true
 
 var LiftForce : Vector3 = Vector3.ZERO
 var LiftForceYaw : Vector3 = Vector3.ZERO
@@ -75,6 +57,7 @@ var ThrustForce : Vector3
 
 
 var Velocity : Vector3 = Vector3.ZERO
+var torque : Vector3 = Vector3.ZERO
 var Acceleration : Vector3 = Vector3.ZERO
 var LocalVelocity : Vector3 = Vector3.ZERO
 var LastVelocity : Vector3 = Vector3.ZERO
@@ -87,8 +70,9 @@ var throttle_setting : float = 0.0
 var drag_intensity_vector : Vector3 = Vector3.ZERO
 var control_input : Vector3
 var aircraft_input : Vector3
-var effective_input : Vector3
 var camera_input_vec : Vector2
+
+var Accleration : Vector3 
 
 
 var stall_aoa : float = 45
@@ -106,41 +90,28 @@ var last_speed_error : float = 0.0
 
 
 func _ready() -> void:
-	#linear_velocity = Vector3(0,0,-200)
+	linear_damp = 0.0
+	linear_velocity = Vector3(0,0,-200)
 	connect("body_shape_entered", Callable(self, "_on_Aircraft_body_shape_entered"))
+	connect("body_shape_exited", Callable(self, "_on_Aircraft_body_shape_exited"))
 	pass
 	
 func _process(delta: float) -> void:
 	pass
 	
 func _physics_process(delta: float) -> void:
-	if not dead:
-		
-		Update_Throttle_Input(delta)
-		Update_Flight_Control_Input(delta)
-		Update_Air_Devices_Input()
-		handle_stall(delta)
-		
-	
-	Calulate_state()
-	Update_Drag()
-	Update_Angular_Drag()
-	Update_Lift_Adv()
-	Update_Steering(delta)
 	Update_Camera_Input(delta)
+	Update_Throttle_Input(delta)
+	Update_Flight_Control_Input(delta)
+	Update_Air_Devices_Input()
+	
+	Calulate_state(delta)
+	
 	Thrust(throttle_setting)
-	Update_Landing_Collision()
-
-
-
-
-func _on_Aircraft_body_shape_entered(body_rid, body, body_shape_index, local_shape_index):
-	var crashed = handle_ground_contact()
-	if crashed:
-		dead = true
-		throttle_setting = 0
-		control_input = Vector3.ZERO
-		gravity_scale = 1.0
+	Update_Drag()
+	Update_Lift()
+	Update_Torque(delta)
+	
 		
 func Update_Camera_Input(delta:float):
 	var x_input = Input.get_joy_axis(0, JOY_AXIS_RIGHT_X)
@@ -162,16 +133,12 @@ func Update_Camera_Input(delta:float):
 	
 
 func Update_Throttle_Input(delta):
-	var input = false
 	
 	if Input.is_action_pressed("throttle_down"):
 		throttle_setting = move_toward(throttle_setting,0,delta*0.5)
-		input = true 
+
 	if Input.is_action_pressed("throttle_up"):
 		throttle_setting = move_toward(throttle_setting,1,delta*0.5)
-		input = true 
-	if not input and auto_throttle:
-		throttle_setting = calulate_auto_thrl(delta)
 		
 func Update_Flight_Control_Input(delta):
 	var roll = Input.get_joy_axis(0, JOY_AXIS_LEFT_X)
@@ -195,9 +162,9 @@ func Update_Flight_Control_Input(delta):
 		control_input = Vector3.ZERO
 
 	
-	aircraft_input.x = move_toward(aircraft_input.x,control_input.x,delta*turnDeflection.x)
-	aircraft_input.y = move_toward(aircraft_input.y,control_input.y,delta*turnDeflection.y)
-	aircraft_input.z = move_toward(aircraft_input.z,control_input.z,delta*turnDeflection.z)
+	aircraft_input.x = move_toward(aircraft_input.x,control_input.x,delta*deflectionRate.x)
+	aircraft_input.y = move_toward(aircraft_input.y,control_input.y,delta*deflectionRate.y)
+	aircraft_input.z = move_toward(aircraft_input.z,control_input.z,delta*deflectionRate.z)
 	
 
 func Update_Air_Devices_Input():
@@ -207,20 +174,21 @@ func Update_Air_Devices_Input():
 	if Input.is_action_just_pressed("toggle_airbrake"):
 		airbrake_deployed = !airbrake_deployed
 		emit_signal("update_air_devices")
-	if Input.is_action_just_pressed("toggle_gear"):
-		emit_signal("toggle_gear")
-	if Input.is_action_just_pressed("toggle_auto_throttle"):
-		auto_throttle = !auto_throttle
 
 
-func Calulate_state():
-	LocalVelocity = global_transform.basis.inverse() * linear_velocity
-	LocalAngularVelocity = global_transform.basis.inverse() * angular_velocity
+func Calulate_state(delta: float) -> void:
+	var inverse_basis := global_transform.basis.orthonormalized().inverse()
+	LocalVelocity = inverse_basis * linear_velocity
+	LocalAngularVelocity = inverse_basis * angular_velocity
 	forward_air_speed = -LocalVelocity.z
 	AngleOfAttack = rad_to_deg(atan2(-LocalVelocity.y, -LocalVelocity.z))
-	AngleOfAttackYaw = rad_to_deg(atan2(LocalVelocity.x, -LocalVelocity.z))
+	AngleOfAttackYaw = rad_to_deg(atan2(
+		LocalVelocity.x,
+		Vector2(LocalVelocity.y, LocalVelocity.z).length()
+	))
+	Accleration = (linear_velocity - LastVelocity) / delta
+	
 	LastVelocity = linear_velocity
-		
 
 func Thrust(current_power : float):
 	var force_vector = -global_transform.basis.z * engine_thrust * current_power
@@ -228,166 +196,131 @@ func Thrust(current_power : float):
 	apply_force(force_vector)
 
 func Calculate_Drag():
-	# drag = 1/2 v2 * Cd
+	# drag = 1/2 * AIR_DENSITY_RHO * v2 * Cd
 	var forward_drag = dragForward
 	if flaps_deployed:
 		forward_drag+=dragFlaps
 	if airbrake_deployed:
 		forward_drag+=dragAirbrake
-	if landing_gear_down:
-		forward_drag+= dragGear
 	
 	var drag_coefficient = Utils.scale6(LocalVelocity.normalized(),dragRight, dragLeft,
 		dragTop, dragBottom,
 		dragBack, forward_drag)
 	var velocity_squared = LocalVelocity.length_squared()
 	var drag_force = 0.5 * AIR_DENSITY_RHO * velocity_squared * drag_coefficient.length()
+	
 	var drag_direction = -LocalVelocity.normalized()
-	#print(drag_force*drag_direction)
+	
 	return drag_force*drag_direction
+
 
 func Update_Drag():
 	var drag_local = Calculate_Drag()
+	DragForce = drag_local
 	var drag_global = global_transform.basis * drag_local
 	apply_force(drag_global)
-
-
-# does nothing atm, could eventually replace angular damp with this 
-func Update_Angular_Drag():
 	
-	var speed_fraction = forward_air_speed/max_speed
-	var av_coe = air_res_curve.sample(speed_fraction)*angular_drag_coe
-	var av2 = LocalAngularVelocity.length_squared()
-	var angular_drag_local = av_coe*av2*-LocalAngularVelocity.normalized()
-	var angular_drag_global = global_transform.basis*angular_drag_local
-	#angular_velocity+=angular_drag_global
+func Calculate_Lift(
+		angle_of_attack: float,
+		right_axis: Vector3,
+		lift_power: float,
+		induced_drag_power: float,
+		aoa_curve: Curve
+) -> Vector3:
+	# Remove the velocity component along the surface's span axis.
+	var lift_velocity := LocalVelocity - right_axis * LocalVelocity.dot(right_axis)
+	var speed_squared := lift_velocity.length_squared()
 
-func Calculate_Lift(angle_of_attack : float, lift_curve: Curve, lift_power : float):
-	var forward_air_speed_squared = forward_air_speed*forward_air_speed
-	angle_of_attack = clamp(angle_of_attack,-90,90)
-	var cl = lift_curve.sample(angle_of_attack)
-	var lift_force = cl * lift_power * AIR_DENSITY_RHO * ((AIR_DENSITY_RHO * forward_air_speed_squared)/2)
-	return lift_force
+	var lift_coefficient := aoa_curve.sample(angle_of_attack)
+	var lift_magnitude := lift_coefficient * lift_power * speed_squared
 
-func Calculate_Lift_Adv(relative_axis : Vector3,relative_aoa: float,aoa_curve:Curve,lift_power: float):
-	# Lift = v^2 * lift_coefficient * lift_power
+	# Span crossed with airflow points up for a wing in forward (-Z) flight.
+	var lift_direction := right_axis.cross(lift_velocity.normalized())
+	var lift := lift_direction * lift_magnitude
 
-	var lift_velocity = Utils.project_on_plane(LocalVelocity,relative_axis)
-	if lift_velocity.length_squared() < 0.0001 or Utils.has_nan(lift_velocity):
-		return Vector3.ZERO
-	
-	var lift_velocity_squared = lift_velocity.length_squared()
-	var lift_coefficient = aoa_curve.sample(relative_aoa)
-	var lift_force = lift_velocity_squared*lift_coefficient*lift_power
+	var drag_force := lift_coefficient * lift_coefficient * induced_drag_power
+	var drag_direction := -lift_velocity.normalized()
+	var induced_drag := drag_direction * speed_squared * drag_force
 
-	
-	var liftDirection = -lift_velocity.normalized().cross(relative_axis)
-	
-	var lift = lift_force*liftDirection
-	
-	# induced drag from lift 
-	var induced_drag_force = lift_coefficient*lift_coefficient*Induced_Drag
-	var induced_drag_dir = -lift_velocity.normalized()
-	var drag = induced_drag_dir*induced_drag_force*lift_velocity_squared
-	
-	return lift + drag
+	# Godot forward is -Z, so use -local_velocity.z for forward speed.
+	var forward_speed := maxf(0.0, -LocalVelocity.z)
+
+	return lift + induced_drag
 	
 	
 func Update_Lift():
-	var up_vector = global_transform.basis.y # roof of plane on global frame
-	var forward_vector = -global_transform.basis.z # nose of plane in global frame
-	var right_vector = global_transform.basis.x # right wing of plane in global frame
+	var forward_vector := -global_transform.basis.z
 	
 	var flap_power = lift_power_flaps if flaps_deployed else 0
 	
-	var wing_lift_force = Calculate_Lift(AngleOfAttack,LiftCurve,lift_power+flap_power)
-	var vstab_lift_force = Calculate_Lift(AngleOfAttackYaw,LiftCurve,v_stabilizer_power)
-	var hstab_lift_force = Calculate_Lift(AngleOfAttack,LiftCurve,h_stabilizer_power)
+	var wing_lift_force = Calculate_Lift(
+		AngleOfAttack,
+		Vector3.RIGHT,
+		lift_power+flap_power,
+		induced_drag_power,
+		LiftCurve
+		)
+	var vertical_stabilizer_force = Calculate_Lift(
+		AngleOfAttackYaw,
+		Vector3.UP,
+		v_stabilizer_power,
+		induced_drag_power,
+		LiftCurve
+	)
 	
-	var wing_lift = up_vector*wing_lift_force
-	var vstab_lift = right_vector*vstab_lift_force
-	var hstab_lift = up_vector*hstab_lift_force
+	LiftForce = wing_lift_force
+	LiftForceYaw = vertical_stabilizer_force
+	var global_wing_force = global_transform.basis * wing_lift_force
+	var global_vertical_stabilizer_force = global_transform.basis * vertical_stabilizer_force
 	
+	apply_force(global_wing_force,forward_vector * wing_offset)
+	apply_force(global_vertical_stabilizer_force,forward_vector * tail_offset)
+	
+	
+# Calculates rotation for a single axis
+# av - angular velocity
+# target_av - the target angular velocity
+# acc - turn accleration for the axis 
+func Calculate_Steering_On_Axis(delta:float,av:float,target_av:float,acc:float):
+	var error = target_av - av
+	var acceleration = acc*delta
+	return clamp(error,-acceleration,acceleration)
 
-	
-	apply_force(wing_lift,forward_vector * wing_offset)
-	apply_force(vstab_lift,-forward_vector* tail_offset)
-	apply_force(hstab_lift,-forward_vector* tail_offset)
-	
-	
-func Update_Lift_Adv():
-	if LocalVelocity.length() < 0.001:
+func Update_Torque(delta : float):
+	if delta <= 0.0:
 		return
+
+	var speed_ratio := clampf(forward_air_speed / max_speed, 0.0, 1.0)
+	var steering_power := SteeringCurve.sample(speed_ratio)
+	var target_av = control_input * (turnSpeed * steering_power)
+	var glimiter = caluclate_g_limiter(turnSpeed*steering_power)
 	
-	var up_vector = global_transform.basis.y # roof of plane on global frame
-	var forward_vector = -global_transform.basis.z # nose of plane in global frame
-	var right_vector = global_transform.basis.x # right wing of plane in global frame
-	
-	var flap_power = lift_power_flaps if flaps_deployed else 0
-	
-	var wing_lift_force = Calculate_Lift_Adv(Vector3.RIGHT,AngleOfAttack,LiftCurve,lift_power+flap_power)
-	var vstab_lift_force = Calculate_Lift_Adv(Vector3.UP,AngleOfAttackYaw,LiftCurve,v_stabilizer_power)
-	var hstab_lift_force = Calculate_Lift_Adv(Vector3.RIGHT,AngleOfAttack,LiftCurve,h_stabilizer_power)
-	
-	var wing_lift = up_vector*wing_lift_force
-	var vstab_lift = right_vector*vstab_lift_force
-	var hstab_lift = up_vector*hstab_lift_force
+	var angular_velocity_change := Vector3(
+		Calculate_Steering_On_Axis(delta, LocalAngularVelocity.x, target_av.x, turnRate.x*steering_power),
+		Calculate_Steering_On_Axis(delta, LocalAngularVelocity.y, target_av.y, turnRate.y*steering_power),
+		Calculate_Steering_On_Axis(delta, LocalAngularVelocity.z, target_av.z, turnRate.z*steering_power)
+	)
+	var local_angular_acceleration := angular_velocity_change / delta
+	var global_angular_acceleration := global_transform.basis * local_angular_acceleration
+	var calculated_torque := get_inverse_inertia_tensor().inverse() * global_angular_acceleration
+	torque = calculated_torque
 	
 	
-	apply_force(wing_lift,forward_vector * wing_offset)
-	apply_force(vstab_lift,-forward_vector* tail_offset)
-	apply_force(hstab_lift,-forward_vector* tail_offset)
+	
+	
+	apply_torque(calculated_torque)
+	
 	
 func Calculate_Steering(delta:float,av:float,target_av:float,acc:float):
 	var error = target_av - av
 	var acceleration = acc*delta
 	return clamp(error,-acceleration,acceleration)
 
-# moves the av to 0 if there's no flight input
-func auto_stabilize(delta:float):
-	
-	if (LocalVelocity.length()<10.0):
-		return
-
-	var speed_fraction = forward_air_speed/max_speed
-	var sp = SteeringCurve.sample(speed_fraction)*steering_power
-	var av = LocalAngularVelocity
-	var target_av = aircraft_input * (turnSpeed*steering_power)
-			
-		
-	var correction_local = Vector3(
-		Calculate_Steering(delta, av.x, target_av.x, turnAcceleration.x * steering_power),
-		Calculate_Steering(delta, av.y, target_av.y, turnAcceleration.y * steering_power),
-		Calculate_Steering(delta, av.z, target_av.z, turnAcceleration.z * steering_power)
-	)
-		
-	
-	var correction_global = global_transform.basis * correction_local
-	
-	angular_velocity += correction_global
-	 
-	var correction_input = Vector3(
-		clamp((target_av.x-av.x)/turnAcceleration.x,-1,1),
-		clamp((target_av.y-av.y)/turnAcceleration.y,-1,1),
-		clamp((target_av.z-av.z)/turnAcceleration.z,-1,1)
-	)
-	
-	
-	
-	var ei = correction_input+correction_local
-	effective_input.x = move_toward(effective_input.x,ei.x,delta*10)
-	effective_input.y = move_toward(effective_input.y,ei.y,delta*10)
-	effective_input.z = move_toward(effective_input.z,ei.z,delta*10)
-
-	
-	
 func Update_Steering(delta:float):
 	if aircraft_input.length() < 0.1:
-		auto_stabilize(delta)
 		return
 		
 	apply_control_surface_forces(control_input)
-	effective_input = aircraft_input
 	
 func apply_control_surface_forces(control_input: Vector3):
 	
@@ -397,24 +330,25 @@ func apply_control_surface_forces(control_input: Vector3):
 	var airspeed = forward_air_speed
 	var air_density = AIR_DENSITY_RHO
 	var airflow = airspeed * air_density
-	var g_scale = UpdateGLimiter(control_input)
-	control_input = control_input*g_scale
-	
 	
 	# Elevator (Pitch)
 	if control_input.x != 0.0:
 		var force_up = -global_transform.basis.y * control_input.x * airflow * Power.x
 		var force_down = global_transform.basis.y * control_input.x * airflow * Power.x
+		
 
+		
 		apply_force(force_up,-forward_vector*tail_offset)
-		#apply_force(force_down,-forward_vector*tail_offset)
+		apply_force(force_down,forward_vector*tail_offset)
+		
+	
 		
 	# Rudder (Yaw)
 	if control_input.y != 0.0:
 		var force_rd_left = -global_transform.basis.x * control_input.y * airflow * 0.5 * Power.y
 		var force_rd_right = global_transform.basis.x * control_input.y * airflow * 0.5 * Power.y
-		#apply_force(force_rd_left, -forward_vector*tail_offset)
-		apply_force(force_rd_right, -forward_vector*tail_offset)
+		apply_force(force_rd_left, forward_vector*tail_offset)
+		apply_force(force_rd_right,-forward_vector*tail_offset)
 
 	# Ailerons (Roll) 
 	if control_input.z != 0.0:
@@ -431,70 +365,15 @@ func calculate_g_force(av: Vector3, velocity: Vector3) -> Vector3:
 	return av.cross(velocity)
 
 func caluclate_g_limit(input:Vector3):
-	return Utils.scale6(input,glimit,glimit_down,glimit,glimit,glimit,glimit)
+	return Utils.scale6(input,glimit,glimit_down,glimit,glimit,glimit,glimit) * 9.81;
 	
-func UpdateGLimiter(input:Vector3):
-	var limit = caluclate_g_limit(input.normalized())
-	var actual = calculate_g_force(angular_velocity,linear_velocity)/9.81
+func caluclate_g_limiter(max_av: Vector3):
+	var max_input = aircraft_input.normalized()
 	
-	if limit.length() < actual.length():
-		
-		return limit.length() / actual.length()
-	else:
-		return 1.0
+	var limit = caluclate_g_limit(max_input)
+	var max_g = calculate_g_force(max_av*max_input, LocalVelocity)
+	
+	if (max_g.length() > limit.length()):
+		return limit.length()/max_g.length()
 
-# increasing the gravitiy scale simulates a realistic stall
-# very much so a hack and should be fixed
-func handle_stall(delta:float):
-	stall = check_stall()
-	if stall:
-		gravity_scale = move_toward(gravity_scale,5.0,delta)
-	else:
-		gravity_scale = move_toward(gravity_scale,1.0,delta*2)
-
-# PID controller, needs work to be more stable
-func calulate_auto_thrl(delta:float):
-	if forward_air_speed < stall_speed:
-		return move_toward(throttle_setting,1.0,delta)
-		
-	var error = auto_throttle_speed - forward_air_speed
-	
-	
-	throttle_integral += error * delta
-	# Derivative (rate of change of error)
-	var derivative = (error - last_speed_error) / delta
-	last_speed_error = error
-	
-	var output = Kp * error + Ki * throttle_integral + Kd * derivative
-	
-	var desired_throttle_setting = clamp(throttle_setting + output * delta, 0.0, 0.84)
-	
-	return move_toward(throttle_setting,desired_throttle_setting,delta)
-
-
-func check_stall():
-	if abs(AngleOfAttack) > stall_aoa:
-		return true
-	if forward_air_speed < stall_speed:
-		return true
-	return false
-
-func Update_Landing_Collision():
-	if landing_gear_down:
-		NoseCollision.disabled = false
-		LeftGearCollision.disabled = false
-		RightGearCollision.disabled = false
-	else:
-		NoseCollision.disabled = true
-		LeftGearCollision.disabled = true
-		RightGearCollision.disabled = true
-
-
-func handle_ground_contact():
-	if not landing_gear_down:
-		return true
-	var impact_force = linear_velocity - LastVelocity
-	if impact_force.length() > 50.0:
-		return true
-	return false
-	
+	return 1.0

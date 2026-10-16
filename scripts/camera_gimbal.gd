@@ -18,9 +18,9 @@ func _physics_process(delta: float) -> void:
 	rotate_from_joystick(joystick_input,delta)
 	
 	if is_reset():
-		var pitch_movement = aircraft.effective_input.x
-		var yaw_movement = aircraft.effective_input.y
-		var roll_movement = aircraft.effective_input.z
+		var pitch_movement = aircraft.aircraft_input.x
+		var yaw_movement = aircraft.aircraft_input.y
+		var roll_movement = aircraft.aircraft_input.z
 		var current_forward_velocity = aircraft.forward_air_speed
 		var acceleration = (current_forward_velocity - velocity) / delta
 		velocity = current_forward_velocity
