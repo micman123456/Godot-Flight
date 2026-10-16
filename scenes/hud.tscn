@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://ce354qef3vhlv"]
+[gd_scene format=3 uid="uid://ce354qef3vhlv"]
 
 [ext_resource type="Script" uid="uid://bollgfumbl8ca" path="res://scripts/hud.gd" id="1_ahhtf"]
 [ext_resource type="Texture2D" uid="uid://bdxd5lecgvm77" path="res://entities/HUD/boresight.png" id="2_oo0fn"]
@@ -6,7 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://c584mqrjrfofd" path="res://entities/HUD/throttle_meter.png" id="4_6fi6k"]
 [ext_resource type="Texture2D" uid="uid://cliufksdtl5al" path="res://entities/HUD/tick_small.png" id="5_uo2fv"]
 
-[node name="HUD" type="Control"]
+[node name="HUD" type="Control" unique_id=482767980]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -15,17 +15,17 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_ahhtf")
 
-[node name="Boresight" type="Sprite2D" parent="."]
+[node name="Boresight" type="Sprite2D" parent="." unique_id=462331699]
 modulate = Color(0.184314, 0.968627, 0.156863, 1)
 scale = Vector2(0.1, 0.1)
 texture = ExtResource("2_oo0fn")
 
-[node name="VelocityMarker" type="Sprite2D" parent="."]
+[node name="VelocityMarker" type="Sprite2D" parent="." unique_id=367497083]
 modulate = Color(0.184314, 0.968627, 0.156863, 1)
 scale = Vector2(0.1, 0.1)
 texture = ExtResource("3_5ysmq")
 
-[node name="ThrottleContainer" type="HBoxContainer" parent="."]
+[node name="ThrottleContainer" type="HBoxContainer" parent="." unique_id=250690221]
 modulate = Color(0.184314, 0.968627, 0.156863, 1)
 layout_mode = 1
 anchors_preset = 8
@@ -40,23 +40,23 @@ offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="ThrottleMeterR" type="Sprite2D" parent="ThrottleContainer"]
+[node name="ThrottleMeterR" type="Sprite2D" parent="ThrottleContainer" unique_id=16904737]
 position = Vector2(130, 0)
 rotation = -3.14159
 scale = Vector2(0.1, 0.1)
 texture = ExtResource("4_6fi6k")
 
-[node name="ThrottleMeterL" type="Sprite2D" parent="ThrottleContainer"]
+[node name="ThrottleMeterL" type="Sprite2D" parent="ThrottleContainer" unique_id=1758829024]
 position = Vector2(-130, 0)
 scale = Vector2(0.1, 0.1)
 texture = ExtResource("4_6fi6k")
 
-[node name="TickSmall" type="Sprite2D" parent="ThrottleContainer"]
+[node name="TickSmall" type="Sprite2D" parent="ThrottleContainer" unique_id=1706597177]
 position = Vector2(-110, 115)
 scale = Vector2(0.2, 0.2)
 texture = ExtResource("5_uo2fv")
 
-[node name="AltSpeedContainer" type="HBoxContainer" parent="."]
+[node name="AltSpeedContainer" type="HBoxContainer" parent="." unique_id=1005361410]
 modulate = Color(0.184314, 0.968627, 0.156863, 1)
 layout_mode = 1
 anchors_preset = 8
@@ -72,17 +72,17 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 300
 
-[node name="Alt" type="Label" parent="AltSpeedContainer"]
+[node name="Alt" type="Label" parent="AltSpeedContainer" unique_id=1156455965]
 custom_minimum_size = Vector2(48, 0)
 layout_mode = 2
 text = "10000"
 
-[node name="Speed" type="Label" parent="AltSpeedContainer"]
+[node name="Speed" type="Label" parent="AltSpeedContainer" unique_id=409211116]
 custom_minimum_size = Vector2(48, 0)
 layout_mode = 2
 text = "1000"
 
-[node name="Auto_Throttle_Cont" type="HBoxContainer" parent="."]
+[node name="Auto_Throttle_Cont" type="HBoxContainer" parent="." unique_id=535313488]
 modulate = Color(0.184314, 0.968627, 0.156863, 1)
 layout_mode = 1
 anchors_preset = -1
@@ -98,11 +98,11 @@ grow_horizontal = 2
 grow_vertical = 2
 metadata/_edit_use_anchors_ = true
 
-[node name="Auto_Throttle_Label" type="Label" parent="Auto_Throttle_Cont"]
+[node name="Auto_Throttle_Label" type="Label" parent="Auto_Throttle_Cont" unique_id=1957620350]
 layout_mode = 2
 text = "AT"
 
-[node name="Gear_Cont" type="HBoxContainer" parent="."]
+[node name="Gear_Cont" type="HBoxContainer" parent="." unique_id=1864045866]
 modulate = Color(0.184314, 0.968627, 0.156863, 1)
 layout_mode = 1
 anchors_preset = -1
@@ -118,12 +118,12 @@ grow_horizontal = 2
 grow_vertical = 2
 metadata/_edit_use_anchors_ = true
 
-[node name="Gear_Label" type="Label" parent="Gear_Cont"]
+[node name="Gear_Label" type="Label" parent="Gear_Cont" unique_id=1308784216]
 layout_mode = 2
 text = "Gear
 "
 
-[node name="Debug_Container" type="VBoxContainer" parent="."]
+[node name="Debug_Container" type="VBoxContainer" parent="." unique_id=1968648232]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0

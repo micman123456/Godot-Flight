@@ -25,20 +25,29 @@ extends Control
 @onready var Gear_Cont_Label = $Gear_Cont/Gear_Label
 @onready var Debug_Container = $Debug_Container
 
-const debug_item_count = 12
+# Optional: add a Label named "GForce" under AltSpeedContainer in the scene to
+# place it yourself. If it's missing, one is created under the speed readout.
+var G_Label : Label
+
+var max_g_seen : float = 0.0
+var min_g_seen : float = 0.0
+
+const debug_item_count = 14
 
 func _ready() -> void:
 	create_debug()
+	create_g_label()
 
 func _physics_process(delta: float) -> void:
 	if aircraft:
 		handle_hud_controls(delta)
-		
+
 		update_debug()
+		update_g_label()
 		Alt_Label.text = "%d" % int(aircraft.global_position.y)
 		Spd_Label.text = "%d" % int(aircraft.forward_air_speed)
-		
-		
+
+
 		project_2D_elemnt(boresight,250,Vector2.ZERO)
 		project_2D_elemnt(throttle_container,150,Vector2.ZERO)
 		project_2D_elemnt(AltSpeedContainer,150,Vector2(-190,-16))
@@ -52,8 +61,8 @@ func project_2D_elemnt(element:Node,distance:float,offset:Vector2):
 		var element_screen_pos = camera.unproject_position(element_world_pos)
 		element.position = element_screen_pos + offset
 		element.visible = camera.is_position_behind(element_world_pos)
-	
-		
+
+
 func project_velocity(element:Node2D):
 	if camera:
 		var element_world_pos = aircraft.global_position + aircraft.linear_velocity
@@ -64,7 +73,7 @@ func project_velocity(element:Node2D):
 
 func scale_throttle_meter(delta:float):
 	var base_position = 119.5
-	
+
 	# for every 0.1 scale offset position 3 px
 	var scaling_rate = 0.25
 	var strength = 4.0
@@ -73,6 +82,38 @@ func scale_throttle_meter(delta:float):
 
 	throttle_meter.scale.y = new_scale_y # lerp(throttle_meter.scale.y,new_scale,delta*2)
 	throttle_meter.position.y = clamp(new_position,2,base_position)
+
+
+func create_g_label():
+	G_Label = AltSpeedContainer.get_node_or_null("GForce") as Label
+	if G_Label:
+		return
+
+	G_Label = Label.new()
+	G_Label.name = "GForce"
+	G_Label.text = "G 1.0"
+	AltSpeedContainer.add_child(G_Label)
+	# Sit directly under the speed readout.
+	G_Label.position = Spd_Label.position + Vector2(0, Spd_Label.size.y)
+
+func update_g_label():
+	if not G_Label:
+		return
+
+	var g : float = aircraft.LocalGForce.y
+	max_g_seen = maxf(max_g_seen, g)
+	min_g_seen = minf(min_g_seen, g)
+
+	G_Label.text = "G %.1f" % g
+
+	# Warn when pulling past the aircraft's structural limits.
+	if g > aircraft.glimit or g < aircraft.glimit_down:
+		G_Label.modulate = Color.RED
+	elif g > aircraft.glimit * 0.8 or g < aircraft.glimit_down * 0.8:
+		G_Label.modulate = Color.YELLOW
+	else:
+		G_Label.modulate = Color.WHITE
+
 
 func create_debug():
 	if not Debug_Container:
@@ -86,7 +127,7 @@ func create_debug():
 func update_debug():
 	if not Debug_Container:
 		return
-	
+
 	Debug_Container.get_child(0).text = "Linear Velocity: " + str(round(aircraft.linear_velocity))
 	Debug_Container.get_child(1).text = "Local Velocity: " + str(round(aircraft.LocalVelocity))
 	Debug_Container.get_child(2).text = "Local AVelocity: " + str(round(aircraft.LocalAngularVelocity))
@@ -100,9 +141,11 @@ func update_debug():
 	Debug_Container.get_child(9).text = "Sideslip: " + str(round(aircraft.AngleOfAttackYaw)) + " deg"
 	Debug_Container.get_child(10).text = "Vertical Speed: " + str(round(aircraft.linear_velocity.y)) + " m/s"
 	Debug_Container.get_child(11).text = "Throttle: " + str(round(aircraft.throttle_setting * 100.0)) + "%"
-	Debug_Container.get_child(11).text = "torque: " + str(round(aircraft.torque))
+	Debug_Container.get_child(12).text = "torque: " + str(round(aircraft.torque))
+	Debug_Container.get_child(13).text = "G (local): %s  max %.1f  min %.1f" % [
+		str(aircraft.LocalGForce.snappedf(0.1)), max_g_seen, min_g_seen
+	]
 
 func handle_hud_controls(delta:float):
 	if Input.is_action_just_pressed("toggle_debug_info"):
 		Debug_Container.visible = !Debug_Container.visible
-		
