@@ -34,10 +34,8 @@ script = ExtResource("1_bo153")
 engine_thrust = 200000.0
 lift_power = 15.0
 induced_drag_power = 0.5
-h_stabilizer_power = 0.5
 v_stabilizer_power = 0.5
 lift_power_flaps = 0.5
-steering_power = 1.0
 dragRight = 80.0
 dragLeft = 40.0
 dragTop = 80.0
@@ -51,11 +49,8 @@ turnSpeed = Vector3(1.5, 1.5, 6)
 turnRate = Vector3(3, 3, 12)
 LiftCurve = SubResource("Curve_jwdad")
 SteeringCurve = SubResource("Curve_mqyat")
-Induced_Drag = 1.0
 wing_offset = 0.5
 tail_offset = -6.0
-aliron_offset = 4.5
-Power = Vector3(65, 50, 150)
 CameraGimble = NodePath("CameraGimbal")
 
 [node name="AircraftModel" parent="." unique_id=1443407227 node_paths=PackedStringArray("aircraft") instance=ExtResource("1_0lgdb")]
