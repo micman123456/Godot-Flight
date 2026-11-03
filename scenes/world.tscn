@@ -43,6 +43,8 @@ shadow_enabled = true
 
 [node name="Aircraft" parent="." unique_id=292525724 instance=ExtResource("1_rwgxs")]
 transform = Transform3D(1, 0, 0, 0, 0.97617954, -0.21696433, 0, 0.21696433, 0.97617954, 0, 390.58966, 9438.2)
+engine_thrust = 200000.0
+lift_power = 15.0
 dragBack = 120.0
 dragFlaps = 1.5
 deflectionRate = Vector3(2, 5, 5)

@@ -38,7 +38,7 @@ signal toggle_gear
 @export var wing_offset : float
 @export var tail_offset : float
 @export var aliron_offset : float
-@export var max_speed : float = 600.0
+@export var max_speed : float = 350.0
 @export var Power : Vector3
 
 
@@ -67,9 +67,16 @@ var throttle_setting : float = 0.0
 var control_input : Vector3
 var aircraft_input : Vector3
 var camera_input_vec : Vector2
+var g_limit : Vector3
+var g_max : Vector3
 
 var flaps_deployed : bool = false
 var airbrake_deployed : bool = false
+var gravity_vector : Vector3 = (
+				ProjectSettings.get_setting("physics/3d/default_gravity_vector")
+				* ProjectSettings.get_setting("physics/3d/default_gravity")
+				* gravity_scale
+			)
 
 
 func _ready() -> void:
@@ -121,7 +128,7 @@ func Update_Flight_Control_Input(delta):
 	var roll = Input.get_joy_axis(0, JOY_AXIS_LEFT_X)
 	var pitch = Input.get_joy_axis(0, JOY_AXIS_LEFT_Y)
 	var yaw = 0
-	var deadzone = 0.1
+	var deadzone = 0.05
 
 	if abs(roll) < deadzone:
 		roll = 0.0
@@ -139,10 +146,6 @@ func Update_Flight_Control_Input(delta):
 		control_input = Vector3.ZERO
 
 
-	aircraft_input.x = move_toward(aircraft_input.x,control_input.x,delta*deflectionRate.x)
-	aircraft_input.y = move_toward(aircraft_input.y,control_input.y,delta*deflectionRate.y)
-	aircraft_input.z = move_toward(aircraft_input.z,control_input.z,delta*deflectionRate.z)
-
 
 func Update_Air_Devices_Input():
 	if Input.is_action_just_pressed("toggle_flaps"):
@@ -154,28 +157,20 @@ func Update_Air_Devices_Input():
 
 
 func Calulate_state(delta: float) -> void:
-	var inverse_basis := global_transform.basis.orthonormalized().inverse()
-	LocalVelocity = inverse_basis * linear_velocity
-	LocalAngularVelocity = inverse_basis * angular_velocity
-	forward_air_speed = -LocalVelocity.z
-	AngleOfAttack = rad_to_deg(atan2(-LocalVelocity.y, -LocalVelocity.z))
-	AngleOfAttackYaw = rad_to_deg(atan2(
-		LocalVelocity.x,
-		Vector2(LocalVelocity.y, LocalVelocity.z).length()
-	))
-
 	if delta > 0.0:
+		var inverse_basis := global_transform.basis.orthonormalized().inverse()
+		linear_velocity.z = clamp(linear_velocity.z,-max_speed,max_speed)
+		LocalVelocity = inverse_basis * linear_velocity
+		LocalAngularVelocity = inverse_basis * angular_velocity
+		forward_air_speed = -LocalVelocity.z
+		AngleOfAttack = rad_to_deg(atan2(-LocalVelocity.y, -LocalVelocity.z))
+		AngleOfAttackYaw = rad_to_deg(atan2(
+			LocalVelocity.x,
+			Vector2(LocalVelocity.y, LocalVelocity.z).length()
+		))
 		var acceleration := (linear_velocity - LastVelocity) / delta
-		# Felt (proper) acceleration is the measured acceleration minus gravity,
-		# so level flight reads +1 g on the local up axis.
-		var gravity_vector : Vector3 = (
-			ProjectSettings.get_setting("physics/3d/default_gravity_vector")
-			* ProjectSettings.get_setting("physics/3d/default_gravity")
-			* gravity_scale
-		)
 		LocalGForce = inverse_basis * (acceleration - gravity_vector) / STANDARD_GRAVITY
-
-	LastVelocity = linear_velocity
+		LastVelocity = linear_velocity
 
 func Thrust(current_power : float):
 	var force_vector = -global_transform.basis.z * engine_thrust * current_power
@@ -277,7 +272,17 @@ func Update_Torque(delta : float):
 	var speed_ratio := clampf(forward_air_speed / max_speed, 0.0, 1.0)
 	var steering_power := SteeringCurve.sample(speed_ratio)
 	var target_av = control_input * (turnSpeed * steering_power)
-	var glimiter = glimter_scale((0.0174533*turnSpeed)*steering_power)
+	var max_av := Vector3(
+		deg_to_rad(turnSpeed.x),
+		deg_to_rad(turnSpeed.y),
+		deg_to_rad(turnSpeed.z)
+	) * control_input
+	var glimiter = glimter_scale(control_input, max_av)
+
+	#aircraft_input.x = move_toward(aircraft_input.x,control_input.x,delta*deflectionRate.x)
+	#aircraft_input.y = move_toward(aircraft_input.y,control_input.y,delta*deflectionRate.y)
+	#aircraft_input.z = move_toward(aircraft_input.z,control_input.z,delta*deflectionRate.z)
+	
 
 	var angular_velocity_change := Vector3(
 		Calculate_Steering_On_Axis(delta, LocalAngularVelocity.x, target_av.x, turnRate.x*steering_power*glimiter),
@@ -288,6 +293,17 @@ func Update_Torque(delta : float):
 	var global_angular_acceleration := global_transform.basis * local_angular_acceleration
 	var calculated_torque := get_inverse_inertia_tensor().inverse() * global_angular_acceleration
 	torque = calculated_torque
+	
+	var correctionInput = Vector3(
+		clamp((target_av.x -max_av.x) / turnRate.x,-1,1),
+		clamp((target_av.y -max_av.y) / turnRate.y,-1,1),
+		clamp((target_av.z -max_av.z) / turnRate.z,-1,1)
+		)	
+	
+	aircraft_input = (correctionInput+control_input)*glimiter
+	#aircraft_input.x = move_toward(aircraft_input.x,cor.x,delta*deflectionRate.x)
+	#aircraft_input.y = move_toward(aircraft_input.y,cor.y,delta*deflectionRate.y)
+	#aircraft_input.z = move_toward(aircraft_input.z,cor.z,delta*deflectionRate.z)
 
 	apply_torque(calculated_torque)
 
@@ -298,16 +314,16 @@ func calculate_g_force(av: Vector3, velocity: Vector3) -> Vector3:
 	return av.cross(velocity)
 
 func caluclate_g_limit(input:Vector3):
-	return Utils.scale6(input,glimit,glimit_down,glimit,glimit,glimit,glimit) * 9.81;
+	return Utils.scale6(input,glimit,glimit_down,glimit,glimit,glimit,glimit)
 
-func glimter_scale(max_av: Vector3):
-	var max_input = aircraft_input.normalized()
+func glimter_scale(input: Vector3, max_av: Vector3):
+	var max_input = input.normalized()
 
 	var limit = caluclate_g_limit(max_input)
 	var max_g = calculate_g_force(max_av*max_input, LocalVelocity)
+	g_limit = limit
+	g_max = max_g
 
 	if (max_g.length() > limit.length()):
 		return limit.length()/max_g.length()
-		print("G limit exceeded")
-
 	return 1.0

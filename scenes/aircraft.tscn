@@ -13,7 +13,7 @@ _data = [Vector2(-90, 0), 0.0, 0.0, 0, 0, Vector2(-28.7234, -0.865168), 0.0, 0.0
 point_count = 5
 
 [sub_resource type="Curve" id="Curve_mqyat"]
-_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+_data = [Vector2(0, 0.08988774), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
 point_count = 2
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_bo153"]
@@ -24,15 +24,15 @@ size = Vector3(5, 2, 12)
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_uh6qh"]
 
 [node name="Aircraft" type="RigidBody3D" unique_id=656663080 node_paths=PackedStringArray("CameraGimble")]
-mass = 15000.0
+mass = 10000.0
 contact_monitor = true
 max_contacts_reported = 4
 linear_damp_mode = 1
 angular_damp_mode = 1
 angular_damp = 5.0
 script = ExtResource("1_bo153")
-engine_thrust = 550000.0
-lift_power = 50.0
+engine_thrust = 200000.0
+lift_power = 15.0
 induced_drag_power = 0.5
 h_stabilizer_power = 0.5
 v_stabilizer_power = 0.5
@@ -47,8 +47,8 @@ dragBack = 40.0
 dragFlaps = 1.0
 dragAirbrake = 5.0
 deflectionRate = Vector3(3, 3, 3)
-turnSpeed = Vector3(1.5, 1.5, 5)
-turnRate = Vector3(3, 3, 10)
+turnSpeed = Vector3(1.5, 1.5, 6)
+turnRate = Vector3(3, 3, 12)
 LiftCurve = SubResource("Curve_jwdad")
 SteeringCurve = SubResource("Curve_mqyat")
 Induced_Drag = 1.0

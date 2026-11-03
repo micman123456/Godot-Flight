@@ -7,10 +7,8 @@ var flap_step: int = 10
 var elevator_min = 65
 var elevator_max = 115
 var elevator_center = 90
-var elevator_range: int = 25
+var elevator_range: int = 35
 
-var ailerons_min = 75
-var ailerons_max = 105
 var ailerons_center = 90
 var ailerons_range: int = 25
 
@@ -65,21 +63,21 @@ var l_elevator_current_angle: float = 90  # Current angle of the left elevator
 var r_elevator_current_angle: float = 90  # Current angle of the right elevator
 var target_l_elevator: float = 90  # Target angle for the left elevator
 var target_r_elevator: float = 90  # Target angle for the right elevator
-var l_elevator_speed: float = 30.0  # Speed of the left elevator
-var r_elevator_speed: float = 30.0  # Speed of the right elevator
+var l_elevator_speed: float = 5.0  # Speed of the left elevator
+var r_elevator_speed: float = 5.0  # Speed of the right elevator
 
 var rudder_current_angle: float = 0  # Current angle of the rudder
 var target_rudder_angle: float = 0  # Target angle for the rudder
-var rudder_speed: float = 30.0  # Speed of the rudder movement
+var rudder_speed: float = 3.0  # Speed of the rudder movement
 
 var L_ailerons_current_angle: float = 90  # Current angle of the ailerons
 var L_target_ailerons_angle: float = 0  # Target angle for the ailerons
-var L_ailerons_speed: float = 30.0  # Speed of the ailerons movement
+var L_ailerons_speed: float = 15.0  # Speed of the ailerons movement
 var L_AileronsMoving: bool = false
 
 var R_ailerons_current_angle: float = 90  # Current angle of the ailerons
 var R_target_ailerons_angle: float = 0  # Target angle for the ailerons
-var R_ailerons_speed: float = 30.0  # Speed of the ailerons movement
+var R_ailerons_speed: float = 15.0  # Speed of the ailerons movement
 var R_AileronsMoving: bool = false
 
 var Airbrake_Current_angle: float = 90
@@ -349,16 +347,3 @@ func toggle_gear():
 		Animation_Player.play("gear_down")
 	
 	
-
-
-#func gear_up():
-	#if not gear_out:
-		#return
-	#Animation_Player.play("gear_up")
-	#gear_out = false
-	#
-#func gear_down():
-	#if gear_out:
-		#return
-	#Animation_Player.play("gear_down")
-	#gear_out = true

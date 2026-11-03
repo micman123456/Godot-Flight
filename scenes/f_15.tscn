@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://c4cymukcksy1d"]
+[gd_scene format=3 uid="uid://c4cymukcksy1d"]
 
 [ext_resource type="PackedScene" uid="uid://d0qx5smmwcawl" path="res://entities/aircraft/f15.glb" id="1_v671m"]
 [ext_resource type="Shader" uid="uid://htijpua74vxv" path="res://shaders/exhaust.gdshader" id="2_2exjx"]
@@ -655,7 +655,7 @@ _data = {
 &"gear_up": SubResource("Animation_le2s0")
 }
 
-[node name="f15" instance=ExtResource("1_v671m")]
+[node name="f15" unique_id=935829503 instance=ExtResource("1_v671m")]
 script = ExtResource("2_2mme6")
 
 [node name="Fuselage" parent="." index="0"]
@@ -709,107 +709,105 @@ surface_material_override/0 = SubResource("StandardMaterial3D_v671m")
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0.82473, -3.48151)
 surface_material_override/0 = SubResource("StandardMaterial3D_v671m")
 
-[node name="Particles" parent="Afterburner1" index="0" instance=ExtResource("2_3t6no")]
+[node name="Particles" parent="Afterburner1" index="0" unique_id=808496003 instance=ExtResource("2_3t6no")]
 transform = Transform3D(0.5, 0, 0, 0, 0.5, 2.84217e-14, 0, -2.84217e-14, 0.5, 0, -0.2, 0)
 
-[node name="EngineFire" type="MeshInstance3D" parent="Afterburner1" index="1"]
+[node name="EngineFire" type="MeshInstance3D" parent="Afterburner1" index="1" unique_id=533496515]
 transform = Transform3D(1, 0, 0, 0, 1, 2.84217e-14, 0, -2.84217e-14, 1, 0, -1.33222, 4.74975e-07)
 mesh = SubResource("QuadMesh_2mme6")
 surface_material_override/0 = SubResource("StandardMaterial3D_f1gj3")
 
-[node name="Particles" parent="Afterburner2" index="0" instance=ExtResource("2_3t6no")]
+[node name="Particles" parent="Afterburner2" index="0" unique_id=1357880498 instance=ExtResource("2_3t6no")]
 transform = Transform3D(0.5, 0, 0, 0, 0.5, 2.84217e-14, 0, -2.84217e-14, 0.5, 0, -0.199951, 6.89179e-08)
 
-[node name="EngineFire" type="MeshInstance3D" parent="Afterburner2" index="1"]
+[node name="EngineFire" type="MeshInstance3D" parent="Afterburner2" index="1" unique_id=1901183826]
 transform = Transform3D(1, 0, 0, 0, 1, 2.84217e-14, 0, -2.84217e-14, 1, 0, -1.33222, 4.74975e-07)
 mesh = SubResource("QuadMesh_2mme6")
 surface_material_override/0 = SubResource("StandardMaterial3D_f1gj3")
 
-[node name="ExhaustHeatLeft" type="MeshInstance3D" parent="." index="21"]
+[node name="ExhaustHeatLeft" type="MeshInstance3D" parent="." index="21" unique_id=1840952113]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, -0.678, -0.037, 5.5)
 visible = false
 material_override = SubResource("ShaderMaterial_3t6no")
 mesh = SubResource("CylinderMesh_le2s0")
 
-[node name="ExhaustHeatRight" type="MeshInstance3D" parent="." index="22"]
+[node name="ExhaustHeatRight" type="MeshInstance3D" parent="." index="22" unique_id=1271641304]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0.678, -0.037, 5.5)
 visible = false
 material_override = SubResource("ShaderMaterial_le2s0")
 mesh = SubResource("CylinderMesh_le2s0")
 
-[node name="EngineAudio" type="AudioStreamPlayer3D" parent="." index="23"]
+[node name="EngineAudio" type="AudioStreamPlayer3D" parent="." index="23" unique_id=1319715384]
 
-[node name="AfterburnerAudio" type="AudioStreamPlayer3D" parent="." index="24"]
+[node name="AfterburnerAudio" type="AudioStreamPlayer3D" parent="." index="24" unique_id=1528825249]
 
-[node name="Nosegear" type="Node3D" parent="." index="25"]
+[node name="Nosegear" type="Node3D" parent="." index="25" unique_id=1938354684]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.05738, -6.30566)
 
-[node name="Strut" type="MeshInstance3D" parent="Nosegear" index="0"]
+[node name="Strut" type="MeshInstance3D" parent="Nosegear" index="0" unique_id=1011835662]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.16608, 1.06848)
 mesh = SubResource("CylinderMesh_2mme6")
 surface_material_override/0 = SubResource("StandardMaterial3D_v671m")
 
-[node name="Wheel" type="MeshInstance3D" parent="Nosegear" index="1"]
+[node name="Wheel" type="MeshInstance3D" parent="Nosegear" index="1" unique_id=535690643]
 transform = Transform3D(-4.37114e-08, 1, -4.37114e-08, 0, -4.37114e-08, -1, -1, -4.37114e-08, 1.91069e-15, 0, -0.881103, 1.05928)
 mesh = SubResource("CylinderMesh_govty")
 
-[node name="Bearing" type="MeshInstance3D" parent="Nosegear" index="2"]
+[node name="Bearing" type="MeshInstance3D" parent="Nosegear" index="2" unique_id=1253769172]
 transform = Transform3D(0.999983, 0.00582936, 0, -0.00582936, 0.999983, 0, 0, 0, 1, -0.15106, -0.704506, 1.07998)
 mesh = SubResource("BoxMesh_ln2mc")
 surface_material_override/0 = SubResource("StandardMaterial3D_v671m")
 
-[node name="Door" type="MeshInstance3D" parent="Nosegear" index="3"]
+[node name="Door" type="MeshInstance3D" parent="Nosegear" index="3" unique_id=687888267]
 transform = Transform3D(1, 0, 0, 0, -1, 8.74228e-08, 0, -8.74228e-08, -1, 0, -0.0560017, 1.44242)
 mesh = SubResource("BoxMesh_ahgj2")
 surface_material_override/0 = SubResource("StandardMaterial3D_v671m")
 
-[node name="LeftDoor" type="MeshInstance3D" parent="." index="26"]
-transform = Transform3D(-3.61999e-06, 0, 1, 0, 1, 0, -1, 0, -3.61999e-06, 0.65, -1.116, 1.586)
+[node name="LeftDoor" type="MeshInstance3D" parent="." index="26" unique_id=1304267134]
+transform = Transform3D(-3.6199901e-06, 0, 1, 0, 1, 0, -1, 0, -3.6199901e-06, 0.65, -1.116, 1.586)
 mesh = SubResource("BoxMesh_26w0v")
 skeleton = NodePath("../Leftgear")
 surface_material_override/0 = SubResource("StandardMaterial3D_v671m")
 
-[node name="Leftgear" type="Node3D" parent="." index="27"]
+[node name="Leftgear" type="Node3D" parent="." index="27" unique_id=811938799]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.8, -0.877, 0.453)
 
-[node name="Strut" type="MeshInstance3D" parent="Leftgear" index="0"]
+[node name="Strut" type="MeshInstance3D" parent="Leftgear" index="0" unique_id=1064416727]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.372286, -0.16608, 1.06848)
 mesh = SubResource("CylinderMesh_2mme6")
 surface_material_override/0 = SubResource("StandardMaterial3D_v671m")
 
-[node name="Wheel" type="MeshInstance3D" parent="Leftgear" index="1"]
+[node name="Wheel" type="MeshInstance3D" parent="Leftgear" index="1" unique_id=1496488301]
 transform = Transform3D(-4.37114e-08, 1, -4.37114e-08, 0, -4.37114e-08, -1, -1, -4.37114e-08, 1.91069e-15, 0.372286, -0.881103, 1.05928)
 mesh = SubResource("CylinderMesh_govty")
 
-[node name="Bearing" type="MeshInstance3D" parent="Leftgear" index="2"]
+[node name="Bearing" type="MeshInstance3D" parent="Leftgear" index="2" unique_id=1148721869]
 transform = Transform3D(0.999983, 0.00582936, 0, -0.00582936, 0.999983, 0, 0, 0, 1, 0.372286, -0.704506, 1.07998)
 mesh = SubResource("BoxMesh_ln2mc")
 surface_material_override/0 = SubResource("StandardMaterial3D_v671m")
 
-[node name="RightDoor" type="MeshInstance3D" parent="." index="28"]
-transform = Transform3D(3.61999e-06, 8.7432e-08, -1, 2.53518e-06, -1, -8.74228e-08, -1, -2.53518e-06, -3.61999e-06, -0.65, -1.116, 1.586)
+[node name="RightDoor" type="MeshInstance3D" parent="." index="28" unique_id=2065192216]
+transform = Transform3D(3.61999e-06, 8.743198e-08, -1, 2.5351817e-06, -1, -8.74228e-08, -1, -2.5351815e-06, -3.6199901e-06, -0.65, -1.116, 1.586)
 mesh = SubResource("BoxMesh_26w0v")
 skeleton = NodePath("../Rightgear")
 surface_material_override/0 = SubResource("StandardMaterial3D_v671m")
 
-[node name="Rightgear" type="Node3D" parent="." index="29"]
+[node name="Rightgear" type="Node3D" parent="." index="29" unique_id=1982627543]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.8, -0.877, 0.453)
 
-[node name="Strut" type="MeshInstance3D" parent="Rightgear" index="0"]
+[node name="Strut" type="MeshInstance3D" parent="Rightgear" index="0" unique_id=1168603197]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.372, -0.16608, 1.06848)
 mesh = SubResource("CylinderMesh_2mme6")
 surface_material_override/0 = SubResource("StandardMaterial3D_v671m")
 
-[node name="Wheel" type="MeshInstance3D" parent="Rightgear" index="1"]
+[node name="Wheel" type="MeshInstance3D" parent="Rightgear" index="1" unique_id=1937470263]
 transform = Transform3D(-4.37114e-08, 1, -4.37114e-08, 0, -4.37114e-08, -1, -1, -4.37114e-08, 1.91069e-15, -0.372, -0.881103, 1.05928)
 mesh = SubResource("CylinderMesh_govty")
 
-[node name="Bearing" type="MeshInstance3D" parent="Rightgear" index="2"]
+[node name="Bearing" type="MeshInstance3D" parent="Rightgear" index="2" unique_id=827447572]
 transform = Transform3D(0.999983, 0.00582936, 0, -0.00582936, 0.999983, 0, 0, 0, 1, -0.372, -0.704506, 1.07998)
 mesh = SubResource("BoxMesh_ln2mc")
 surface_material_override/0 = SubResource("StandardMaterial3D_v671m")
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="." index="30"]
-libraries = {
-&"": SubResource("AnimationLibrary_2mme6")
-}
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." index="30" unique_id=2038745619]
+libraries/ = SubResource("AnimationLibrary_2mme6")

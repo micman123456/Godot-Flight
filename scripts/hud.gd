@@ -141,10 +141,12 @@ func update_debug():
 	Debug_Container.get_child(9).text = "Sideslip: " + str(round(aircraft.AngleOfAttackYaw)) + " deg"
 	Debug_Container.get_child(10).text = "Vertical Speed: " + str(round(aircraft.linear_velocity.y)) + " m/s"
 	Debug_Container.get_child(11).text = "Throttle: " + str(round(aircraft.throttle_setting * 100.0)) + "%"
-	Debug_Container.get_child(12).text = "torque: " + str(round(aircraft.torque))
-	Debug_Container.get_child(13).text = "G (local): %s  max %.1f  min %.1f" % [
-		str(aircraft.LocalGForce.snappedf(0.1)), max_g_seen, min_g_seen
-	]
+	#Debug_Container.get_child(12).text = "torque: " + str(round(aircraft.torque))
+	Debug_Container.get_child(12).text = "glimit: " + str(round(aircraft.g_limit))
+	Debug_Container.get_child(13).text = "gmax: " + str(round(aircraft.g_max))		
+	#Debug_Container.get_child(13).text = "G (local): %s  max %.1f  min %.1f" % [
+		#str(aircraft.LocalGForce.snappedf(0.1)), max_g_seen, min_g_seen
+	#]
 
 func handle_hud_controls(delta:float):
 	if Input.is_action_just_pressed("toggle_debug_info"):
