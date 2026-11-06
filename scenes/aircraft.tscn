@@ -23,7 +23,7 @@ size = Vector3(5, 2, 12)
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_uh6qh"]
 
-[node name="Aircraft" type="RigidBody3D" unique_id=656663080 node_paths=PackedStringArray("CameraGimble")]
+[node name="Aircraft" type="RigidBody3D" unique_id=656663080 node_paths=PackedStringArray("CameraGimble", "aircraftBody")]
 mass = 10000.0
 contact_monitor = true
 max_contacts_reported = 4
@@ -31,6 +31,7 @@ linear_damp_mode = 1
 angular_damp_mode = 1
 angular_damp = 5.0
 script = ExtResource("1_bo153")
+gear_down = true
 engine_thrust = 200000.0
 lift_power = 15.0
 induced_drag_power = 0.5
@@ -52,6 +53,7 @@ SteeringCurve = SubResource("Curve_mqyat")
 wing_offset = 0.5
 tail_offset = -6.0
 CameraGimble = NodePath("CameraGimbal")
+aircraftBody = NodePath("AircraftModel")
 
 [node name="AircraftModel" parent="." unique_id=1443407227 node_paths=PackedStringArray("aircraft") instance=ExtResource("1_0lgdb")]
 aircraft = NodePath("..")

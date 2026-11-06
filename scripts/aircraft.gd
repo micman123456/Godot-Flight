@@ -4,7 +4,7 @@ extends RigidBody3D
 signal update_air_devices
 signal toggle_gear
 
-
+@export var gear_down : bool = false
 @export var engine_thrust : float
 @export var lift_power : float
 @export var induced_drag_power : float
@@ -43,10 +43,12 @@ signal toggle_gear
 
 
 @export var CameraGimble : Node3D
+@export var aircraftBody : Node3D
 
 const AIR_DENSITY_RHO = 1.225
 const STANDARD_GRAVITY = 9.81
 
+var gear_moving : bool = false
 var LiftForce : Vector3 = Vector3.ZERO
 var LiftForceYaw : Vector3 = Vector3.ZERO
 
@@ -82,6 +84,7 @@ var gravity_vector : Vector3 = (
 func _ready() -> void:
 	linear_damp = 0.0
 	linear_velocity = Vector3(0,0,-200)
+	aircraftBody.reset_gear(gear_down)
 
 func _physics_process(delta: float) -> void:
 	Update_Camera_Input(delta)
@@ -154,6 +157,9 @@ func Update_Air_Devices_Input():
 	if Input.is_action_just_pressed("toggle_airbrake"):
 		airbrake_deployed = !airbrake_deployed
 		emit_signal("update_air_devices")
+	if Input.is_action_just_pressed("toggle_gear"):
+		if (!gear_moving):
+			emit_signal("toggle_gear")
 
 
 func Calulate_state(delta: float) -> void:
@@ -278,10 +284,6 @@ func Update_Torque(delta : float):
 		deg_to_rad(turnSpeed.z)
 	) * control_input
 	var glimiter = glimter_scale(control_input, max_av)
-
-	#aircraft_input.x = move_toward(aircraft_input.x,control_input.x,delta*deflectionRate.x)
-	#aircraft_input.y = move_toward(aircraft_input.y,control_input.y,delta*deflectionRate.y)
-	#aircraft_input.z = move_toward(aircraft_input.z,control_input.z,delta*deflectionRate.z)
 	
 
 	var angular_velocity_change := Vector3(
@@ -301,9 +303,6 @@ func Update_Torque(delta : float):
 		)	
 	
 	aircraft_input = (correctionInput+control_input)*glimiter
-	#aircraft_input.x = move_toward(aircraft_input.x,cor.x,delta*deflectionRate.x)
-	#aircraft_input.y = move_toward(aircraft_input.y,cor.y,delta*deflectionRate.y)
-	#aircraft_input.z = move_toward(aircraft_input.z,cor.z,delta*deflectionRate.z)
 
 	apply_torque(calculated_torque)
 
